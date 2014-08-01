@@ -1,0 +1,35 @@
+---
+title: flafla2's soapbox
+---
+
+{% include header.html %}
+
+			{% for post in paginator.posts %}
+			<div class="article">
+				<a href="{{ post.url }}"><h2>{{ post.title }}</h2></a>
+				<p class="postinfo">Posted on {{ post.date | date_to_long_string }} by {{ post.author }}</p>
+				{{ post.content | truncatewords: 100 }}
+				<br />
+				<a href="{{ post.url }}">&raquo; read more</a>
+			</div>
+			<br />
+			{% endfor %}
+
+			<p id="pagination">
+				{% for page in (1..paginator.total_pages) %}
+					{% if page == paginator.page %}
+						{{ page }}
+					{% elsif page == 1%}
+						<a href="{{ '/index.html' | prepend: site.baseurl | replace: '//', '/' }}">1</a>
+					{% else %}
+						<a href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', page }}">{{ page }}</a>
+					{% endif %}
+
+					{% if page != paginator.total_pages %}
+					 | 
+					{% endif %}
+				{% endfor %}
+			</p>
+
+
+{% include footer.html %}

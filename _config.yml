@@ -1,0 +1,10 @@
+paginate: 5
+paginate_path: "page:num"
+defaults:
+  -
+    scope:
+      path: ""
+      type: "post"
+    values:
+      layout: "post"
+      author: "Flafla2"

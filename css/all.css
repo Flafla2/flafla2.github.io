@@ -13,6 +13,14 @@ h1,h2,h3 {
 	font-family: "Roboto", sans-serif;
 }
 
+.content a {
+	text-decoration: none;
+}
+
+.content a > h2 {
+	color: black;
+}
+
 a:link, a:visited, a:hover {
 	color: #2A94D6;
 }
@@ -54,6 +62,15 @@ a:active {
 	border-bottom: 2px solid #AAAAAA;
 	margin: 0 0 5px 0;
 	padding: 0 5px;
+}
+
+.article p {
+	padding-bottom:1em;
+}
+
+.postinfo {
+	font-size: 60%;
+	color: #A6A6A6;
 }
 
 #pagination {

@@ -1,0 +1,10 @@
+{% include header.html %}
+
+<div class="article" style="border-bottom: none;">
+	<h2>{{ page.title }}</h2>
+	<p class="postinfo">Posted on {{ page.date | date_to_long_string }} by {{ page.author }}</p>
+	{{ content }}
+	<br />
+</div>
+
+{% include footer.html %}

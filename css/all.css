@@ -1,0 +1,127 @@
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+body {
+	background-color: #DBE6EC;
+	font-family: "Open Sans", sans-serif;
+}
+
+h1,h2,h3 {
+	font-family: "Roboto", sans-serif;
+}
+
+a:link, a:visited, a:hover {
+	color: #2A94D6;
+}
+
+a:active {
+	color: #4CB6F8;
+}
+
+.header {
+	display: block;
+	text-align: center;
+	color: #FFFFFF;
+	background-color: #2A94D6;
+	border-bottom: 2px solid #888888;
+
+	text-shadow: 2px 2px 2px #444444;
+
+	padding-bottom: 5px;
+
+	background: #2A94D6; /* Old browsers */
+	background: -moz-radial-gradient(bottom center, ellipse cover,  #5CC0F9 0%, #2a94d6 100%); /* FF3.6+ */
+	background: -webkit-gradient(radial, bottom center, 0px, center center, 100%, color-stop(0%,#5CC0F9), color-stop(100%,#2a94d6)); /* Chrome,Safari4+ */
+	background: -webkit-radial-gradient(bottom center, ellipse cover,  #5CC0F9 0%,#2a94d6 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-radial-gradient(bottom center, ellipse cover,  #5CC0F9 0%,#2a94d6 100%); /* Opera 12+ */
+	background: -ms-radial-gradient(bottom center, ellipse cover,  #5CC0F9 0%,#2a94d6 100%); /* IE10+ */
+	background: radial-gradient(ellipse at bottom center,  #5CC0F9 0%,#2a94d6 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5CC0F9', endColorstr='#2a94d6',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+
+}
+
+.nav {
+	display: block;
+	height: 30px;
+	line-height: 30px;
+}
+
+.article {
+	display: block;
+	border-bottom: 2px solid #AAAAAA;
+	margin: 0 0 5px 0;
+	padding: 0 5px;
+}
+
+#pagination {
+	text-align: center;
+}
+
+/*******BEGIN MOBILE CONTENT*******/
+
+.nav#mobile {
+	display: block;
+	cursor: pointer;
+}
+
+.nav#desktop {
+	display: none;
+}
+
+.content {
+	display: block;
+	margin: 0 auto;
+	width: 100%;
+
+	background-color: #F0F1F2;
+	border-left: 1px solid #AAAAAA;
+	border-right: 1px solid #AAAAAA;
+	box-shadow: 0 0 80px rgba(170, 170, 170, 1); 
+}
+
+#navlinks {
+	display: none;
+	background-color: #1983C5;
+}
+
+.navlink {
+	cursor: pointer;
+	height: 25px;
+	line-height: 25px;
+}
+
+.navlink:hover {
+	color: #CACACA;
+}
+
+.nava:link, .nava:visited, .nava:hover {
+	color: #ffffff;
+	text-decoration: none;
+}
+
+.nava:active {}
+
+/*******BEGIN DESKTOP CONTENT*******/
+@media all and (min-width: 400px) {
+	.nav#mobile {
+		display: none;
+	}
+
+	.navlink {
+		display: inline-block;
+		width:30%;
+		height:100%;
+	}
+
+	.nav#desktop {
+		display: block;
+	}
+}
+@media all and (min-width: 925px) {
+	.content {
+		width: 925px;
+	}
+}

@@ -8,3 +8,4 @@ defaults:
     values:
       layout: "post"
       author: "Flafla2"
+      comments: "true"

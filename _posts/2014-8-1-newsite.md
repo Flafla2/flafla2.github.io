@@ -1,6 +1,7 @@
 ---
 title: The Site is LIVE!
 author: Flafla2
+comments: false
 ---
 
 This here is my new website/blog, powered by [Jekyll](http://jekyllrb.com) and hosted by [Github Pages](https://pages.github.com).  Here I will ramble on about whatever I have been working on, or some other cool thing I would like to share.  You can check out the source for this site [here](https://github.com/Flafla2/flafla2.github.io).

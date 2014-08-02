@@ -96,6 +96,7 @@ a:active {
 	background-color: #F0F1F2;
 	border-left: 1px solid #AAAAAA;
 	border-right: 1px solid #AAAAAA;
+	border-bottom: 1px solid #AAAAAA;
 	box-shadow: 0 0 80px rgba(170, 170, 170, 1); 
 }
 

@@ -5,6 +5,7 @@ title: flafla2's soapbox
 {% include header.html %}
 
 			{% for post in paginator.posts %}
+			{% if post.visible == true %}
 			<div class="article">
 				<a href="{{ post.url }}"><h2>{{ post.title }}</h2></a>
 				<p class="postinfo">Posted on {{ post.date | date_to_long_string }} by {{ post.author }}</p>
@@ -13,6 +14,7 @@ title: flafla2's soapbox
 				<a href="{{ post.url }}">&raquo; read more</a>
 			</div>
 			<br />
+			{% endif %}
 			{% endfor %}
 
 			<p id="pagination">

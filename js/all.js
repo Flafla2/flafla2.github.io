@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	mobileNavDisplayed = false;
 	$(".nav#mobile").click(function() {
-		if(mobileNavDisplayed) {
+		if(!mobileNavDisplayed) {
 			$("#navlinks").slideDown();
 			$(".nav#mobile").html("close navigation");
 		} else {

@@ -13,6 +13,15 @@ h1,h2,h3 {
 	font-family: "Roboto", sans-serif;
 }
 
+table,th,tr,td {
+	border: 1px solid #a9a9a9;
+	border-collapse: collapse;
+}
+
+th {
+	background-color: #cfcfcf;
+}
+
 .content a {
 	text-decoration: none;
 }

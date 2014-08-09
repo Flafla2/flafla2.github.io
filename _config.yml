@@ -1,5 +1,6 @@
 paginate: 5
 paginate_path: "page:num"
+highlighter: pygments
 defaults:
   -
     scope:

@@ -4,7 +4,7 @@ title: Understanding Perlin Noise
 
 The objective of this article is to present an easy-to-understand analysis of Ken Perlin\'s [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/).  The code in this article is written in C# and is free to use.  If you would prefer to just look at the final result, [you can view the final source here](https://gist.github.com/Flafla2/f0260a861be0ebdeef76).
 
-Perlin Noise is an extremely powerful algorithm that is used often in procedural content generation.  It is especially useful for games and other visual media such as movies.  The man who created it, Ken Perlin, [won an academy award for the original implementationn](http://mrl.nyu.edu/~perlin/doc/oscar.html).  In this article I will be exploring his [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/), published in 2002.
+Perlin Noise is an extremely powerful algorithm that is used often in procedural content generation.  It is especially useful for games and other visual media such as movies.  The man who created it, Ken Perlin, [won an academy award for the original implementation](http://mrl.nyu.edu/~perlin/doc/oscar.html).  In this article I will be exploring his [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/), published in 2002.
 
 In game development, Perlin Noise can be used for any sort of wave-like, undulating material or texture.  For example, it could be used for procedural terrain (*Minecraft*, for example uses Perlin Noise for its terrain generation), fire effects, water, and clouds.  These effects mostly represent Perlin noise in the 2<sup>nd</sup> and 3<sup>rd</sup> dimensions, but it can be extended into the 4<sup>th</sup> dimension rather trivially.  Additionally Perlin Noise can be used in only 1 dimension for purposes such as side-scrolling terrain(such as in *Terraria* or *Starbound*) or to create the illusion of handwritten lines.
 
@@ -121,11 +121,11 @@ Logically, that\'s it!  We now have all of the components needed to generate Per
 Code Implementation
 -------------------
 
-Once again, this code is written in C#.  The code is a slightly modified version of [Ken Perlin\'s Java Implementationn](http://mrl.nyu.edu/~perlin/noise/).  It was modified for additional clarity and deobfuscation, as well as adding the ability to repeat (tile) noise.  The code is of course entirely free to use (considering I didn\'t really write it in the first place - Ken Perlin did!).
+Once again, this code is written in C#.  The code is a slightly modified version of [Ken Perlin\'s Java Implementation](http://mrl.nyu.edu/~perlin/noise/).  It was modified for additional clarity and deobfuscation, as well as adding the ability to repeat (tile) noise.  The code is of course entirely free to use (considering I didn\'t really write it in the first place - Ken Perlin did!).
 
 ###Setting Up
 
-The first thing we need to do is set up our permutation table, or the <code>p[]</code> array for short.  This is simply a length 256 array of random values from 1 - 255 inclusive.  We also repeat this array (for a total size of 512) to avoid buffer overflow later on:
+The first thing we need to do is set up our permutation table, or the <code>p[]</code> array for short.  This is simply a length 256 array of random values from 0 - 255 inclusive.  We also repeat this array (for a total size of 512) to avoid buffer overflow later on:
 
 {% highlight csharp %}
 private static readonly int[] permutation = { 151,160,137,91,90,15,                 // Hash lookup table as defined by Ken Perlin.  This is a randomly
@@ -309,7 +309,7 @@ This is determined by the last 4 bits of the hash function value (the first para
 
 ###Putting it all Together
 
-Now, we use take all of these functions, use them for all 8 surrounding unit cube coordinates, and interpolate them together:
+Now, we take all of these functions, use them for all 8 surrounding unit cube coordinates, and interpolate them together:
 
 {% highlight csharp %}
 public double perlin(double x, double y, double z) {

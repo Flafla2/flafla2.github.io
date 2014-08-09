@@ -4,7 +4,7 @@ title: Understanding Perlin Noise
 
 The objective of this article is to present an easy-to-understand analysis of Ken Perlin\'s [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/).  The code in this article is written in C# and is free to use.  If you would prefer to just look at the final result, [you can view the final source here](https://gist.github.com/Flafla2/f0260a861be0ebdeef76).
 
-Perlin Noise is an extremely powerful algorithm that is used often in procedural content generation.  It is especially useful for games and other visual media such as movies.  The man who created it, Ken Perlin, [won an academy award for the original implementationn](http://mrl.nyu.edu/~perlin/doc/oscar.html).  In this article I will be exploring his [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/), published in 2002.
+Perlin Noise is an extremely powerful algorithm that is used often in procedural content generation.  It is especially useful for games and other visual media such as movies.  The man who created it, Ken Perlin, [won an academy award for the original implementation](http://mrl.nyu.edu/~perlin/doc/oscar.html).  In this article I will be exploring his [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/), published in 2002.
 
 In game development, Perlin Noise can be used for any sort of wave-like, undulating material or texture.  For example, it could be used for procedural terrain (*Minecraft*, for example uses Perlin Noise for its terrain generation), fire effects, water, and clouds.  These effects mostly represent Perlin noise in the 2<sup>nd</sup> and 3<sup>rd</sup> dimensions, but it can be extended into the 4<sup>th</sup> dimension rather trivially.  Additionally Perlin Noise can be used in only 1 dimension for purposes such as side-scrolling terrain(such as in *Terraria* or *Starbound*) or to create the illusion of handwritten lines.
 
@@ -77,15 +77,31 @@ Next, we need to calculate the 4 vectors (8 in 3D) from the given point to the 6
     <i>Figure 3: Example distance vectors.</i> (<a href="http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html">Source</a>)
 </p>
 
-Next, we take the dot product between the two vectors (the gradient vector and the distance vector).  This gives us our final *influence* values:
+Next, we take the [dot product](http://en.wikipedia.org/wiki/Dot_product) between the two vectors (the gradient vector and the distance vector).  This gives us our final *influence* values:
 
-{% highlight csharp %}
+<code>
 grad.x * dist.x + grad.y * dist.y + grad.z * dist.z
-{% endhighlight %}
+</code>
+
+This works because the [dot product](http://en.wikipedia.org/wiki/Dot_product) of 2 vectors is equal to the cosine of the angle between the two vectors, multiplied by the magnitude of those vectors:
+
+<code>dot(vec1,vec2) = cos(angle(vec1,vec2)) * vec1.length * vec2.length</code>
+
+In other words, if the 2 vectors are pointing in the same direction the dot product would equal:
+
+<code> 1 * vec1.length * vec2.length </code>
+
+..and if the two vectors are pointing in opposite directions the dot product would equal:
+
+<code> -1 * vec1.length * vec2.length </code>
+
+If the two vectors are perpendicular, the dot product is 0.
+
+Thus, the result of the dot product would be positive when it is in the direction of the gradient, and negative when it is in the opposite.  This is how the gradient vectors define positive and negative directions.  Here is a graphic representing these positive/negative influences:
 
 <p style="text-align: center">
-    <img src="/img/2014-08-09-perlinnoise/logic04.png" style="text-align: center; width: 100%; max-width: 141px;" /><br />
-    <i>Figure 4: A representation of these influences in 2D noise.</i> (<a href="http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html">Source</a>)
+    <img src="/img/2014-08-09-perlinnoise/logic04.png" style="text-align: center; width: 100%; max-width: 341px;" /><br />
+    <i>Figure 4: A representation of these influences in 2D noise.</i> (<a href="http://gamedev.stackexchange.com/questions/23625/how-do-you-generate-tileable-perlin-noise">Source</a>)
 </p>
 
 So now all we need to do is interpolate between these 4 values so that we get a sort of weighted average in between the 4 grid points (8 in 3D).  The solution to this is easy: average the averages like so (this example is in 2D):
@@ -114,18 +130,18 @@ There is one final piece to this puzzle: with the above weighted average, the fi
 
 This ease curve is applied to the <code>u</code> and <code>v</code> values in the above code example.  This makes changes more gradual as one approaches integral coordinates.  The fade function for the improved perlin noise implementation is this:
 
-<p style="text-align: center">6<i>t</i><sup>5</sup>-5<i>t</i><sup>4</sup>+10<i>t</i><sup>3</sup></p>
+<p style="text-align: center">6<i>t</i><sup>5</sup>-15<i>t</i><sup>4</sup>+10<i>t</i><sup>3</sup></p>
 
 Logically, that\'s it!  We now have all of the components needed to generate Perlin Noise.  Now let\'s jump into some code.
 
 Code Implementation
 -------------------
 
-Once again, this code is written in C#.  The code is a slightly modified version of [Ken Perlin\'s Java Implementationn](http://mrl.nyu.edu/~perlin/noise/).  It was modified for additional clarity and deobfuscation, as well as adding the ability to repeat (tile) noise.  The code is of course entirely free to use (considering I didn\'t really write it in the first place - Ken Perlin did!).
+Once again, this code is written in C#.  The code is a slightly modified version of [Ken Perlin\'s Java Implementation](http://mrl.nyu.edu/~perlin/noise/).  It was modified for additional clarity and deobfuscation, as well as adding the ability to repeat (tile) noise.  The code is of course entirely free to use (considering I didn\'t really write it in the first place - Ken Perlin did!).
 
 ###Setting Up
 
-The first thing we need to do is set up our permutation table, or the <code>p[]</code> array for short.  This is simply a length 256 array of random values from 1 - 255 inclusive.  We also repeat this array (for a total size of 512) to avoid buffer overflow later on:
+The first thing we need to do is set up our permutation table, or the <code>p[]</code> array for short.  This is simply a length 256 array of random values from 0 - 255 inclusive.  We also repeat this array (for a total size of 512) to avoid buffer overflow later on:
 
 {% highlight csharp %}
 private static readonly int[] permutation = { 151,160,137,91,90,15,                 // Hash lookup table as defined by Ken Perlin.  This is a randomly
@@ -182,7 +198,7 @@ This code is pretty self explanatory.  First, we use the modulo (remainder) oper
 
 Now we need to define our fade function, described above (Figure 5).  As mentioned earlier, this is the Perlin Noise fade function:
 
-<p style="text-align: center">6<i>t</i><sup>5</sup>-5<i>t</i><sup>4</sup>+10<i>t</i><sup>3</sup></p>
+<p style="text-align: center">6<i>t</i><sup>5</sup>-15<i>t</i><sup>4</sup>+10<i>t</i><sup>3</sup></p>
 
 In code, it is defined like this:
 
@@ -309,7 +325,7 @@ This is determined by the last 4 bits of the hash function value (the first para
 
 ###Putting it all Together
 
-Now, we use take all of these functions, use them for all 8 surrounding unit cube coordinates, and interpolate them together:
+Now, we take all of these functions, use them for all 8 surrounding unit cube coordinates, and interpolate them together:
 
 {% highlight csharp %}
 public double perlin(double x, double y, double z) {
@@ -403,3 +419,7 @@ Here are some references that you can check out if you are interested:
 * [GPU Gems - \"Implementing Improved Perlin Noise\"](http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter26.html) - This article taps into the awesome power of the GPU to render stunning ocean scenes in *realtime* using Perlin Noise.  Shaders are cool!
 
 Thank you for reading!
+
+####Updates
+
+8/9/14 - I have updated the article to include a better explanation about dot products, and I fixed some typos in the article.  Huge thanks to all of the advice given to me by reddit [/r/programming](http://www.reddit.com/r/programming/comments/2d28p6/understanding_perlin_noise_an_indepth_look_at_the/), [/r/gamedev](http://www.reddit.com/r/gamedev/comments/2d284n/understanding_perlin_noise_an_indepth_look_at_the/), and [/r/Unity3D](http://www.reddit.com/r/Unity3D/comments/2d29jj/understanding_perlin_noise_an_indepth_look_at_the/).

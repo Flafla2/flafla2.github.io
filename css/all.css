@@ -22,6 +22,12 @@ th {
 	background-color: #cfcfcf;
 }
 
+ul {
+	list-style-type: square;
+	list-style-position: outside;
+	margin-left: 1em;
+}
+
 blockquote {
 	border-top: 1px solid #a9a9a9;
 	border-bottom: 1px solid #a9a9a9;
@@ -90,7 +96,7 @@ a:active {
 	display: block;
 	border-bottom: 2px solid #AAAAAA;
 	margin: 0 0 5px 0;
-	padding: 0 5px;
+	padding: 0 10px;
 }
 
 .article p {

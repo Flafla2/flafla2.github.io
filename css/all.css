@@ -22,6 +22,26 @@ th {
 	background-color: #cfcfcf;
 }
 
+blockquote {
+	border-top: 1px solid #a9a9a9;
+	border-bottom: 1px solid #a9a9a9;
+	padding: 5px;
+	margin: 0 auto 1em auto;
+	width: 100%;
+	max-width: 700px;
+}
+
+blockquote p {
+	padding-bottom: 0 !important;
+}
+
+#footer {
+	position: relative;
+	top: 5px;
+	font-size: 0.6em;
+	text-align: center;
+}
+
 .content a {
 	text-decoration: none;
 }

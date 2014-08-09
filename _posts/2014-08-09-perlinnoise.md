@@ -1,15 +1,14 @@
 ---
 title: Understanding Perlin Noise
-visible: false
 ---
 
 The objective of this article is to present an easy-to-understand analysis of Ken Perlin\'s [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/).  The code in this article is written in C# and is free to use.  If you would prefer to just look at the final result, [you can view the final source here](https://gist.github.com/Flafla2/f0260a861be0ebdeef76).
 
-Perlin Noise is an extremely powerful algorithm that is used often in procedural content generation.  It is especially useful for games and other visual media such as movies.  The man who created it, Ken Perlin, [won an academy award for the original implementation](http://mrl.nyu.edu/~perlin/doc/oscar.html).  In this article I will be exploring his [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/), released in 2002.
+Perlin Noise is an extremely powerful algorithm that is used often in procedural content generation.  It is especially useful for games and other visual media such as movies.  The man who created it, Ken Perlin, [won an academy award for the original implementationn](http://mrl.nyu.edu/~perlin/doc/oscar.html).  In this article I will be exploring his [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/), published in 2002.
 
 In game development, Perlin Noise can be used for any sort of wave-like, undulating material or texture.  For example, it could be used for procedural terrain (*Minecraft*, for example uses Perlin Noise for its terrain generation), fire effects, water, and clouds.  These effects mostly represent Perlin noise in the 2<sup>nd</sup> and 3<sup>rd</sup> dimensions, but it can be extended into the 4<sup>th</sup> dimension rather trivially.  Additionally Perlin Noise can be used in only 1 dimension for purposes such as side-scrolling terrain(such as in *Terraria* or *Starbound*) or to create the illusion of handwritten lines.
 
-Also, if you extend Perlin Noise into an additional dimension and consider the extra dimension as time, you can animate Perlin Noise.  For example, 2D perlin noise can be interpreted as Terrain, but 3D perlin noise can similarly be interpreted as undulating waves in an ocean scene.  Below are some pictures of Noise in different dimensions and some of their uses at runtime:
+Also, if you extend Perlin Noise into an additional dimension and consider the extra dimension as time, you can animate it.  For example, 2D Perlin Noise can be interpreted as Terrain, but 3D noise can similarly be interpreted as undulating waves in an ocean scene.  Below are some pictures of Noise in different dimensions and some of their uses at runtime:
 
 <table style="text-align: center">
 	<tr>
@@ -19,45 +18,45 @@ Also, if you extend Perlin Noise into an additional dimension and consider the e
 	</tr>
 	<tr>
 		<td>1</td>
-		<td><img src="/img/2014-08-02-perlinnoise/raw1d.png" style="width: 100%; max-width: 150px;" /></td>
-		<td style="font-size: 0.7em"><img src="/img/2014-08-02-perlinnoise/use1d.png" style="width: 100%; max-width: 150px;" /><br />Using noise as an offset to create handwritten lines.</td>
+		<td><img src="/img/2014-08-09-perlinnoise/raw1d.png" style="width: 100%; max-width: 150px;" /></td>
+		<td style="font-size: 0.7em"><img src="/img/2014-08-09-perlinnoise/use1d.png" style="width: 100%; max-width: 150px;" /><br />Using noise as an offset to create handwritten lines.</td>
 	</tr>
 	<tr>
 		<td>2</td>
-		<td><img src="/img/2014-08-02-perlinnoise/raw2d.png" style="width: 100%; max-width: 150px;" /></td>
-		<td style="font-size: 0.7em"><img src="/img/2014-08-02-perlinnoise/use2d.png" style="width: 100%; max-width: 150px;" /><br />By applying a simple gradient, a procedural fire texture can be created.</td>
+		<td><img src="/img/2014-08-09-perlinnoise/raw2d.png" style="width: 100%; max-width: 150px;" /></td>
+		<td style="font-size: 0.7em"><img src="/img/2014-08-09-perlinnoise/use2d.png" style="width: 100%; max-width: 150px;" /><br />By applying a simple gradient, a procedural fire texture can be created.</td>
 	</tr>
 	<tr>
 		<td>3</td>
-		<td><img src="/img/2014-08-02-perlinnoise/raw3d.png" style="width: 100%; max-width: 150px;" /></td>
-		<td style="font-size: 0.7em"><img src="/img/2014-08-02-perlinnoise/use3d.png" style="width: 100%; max-width: 150px;" /><br />Perhaps the quintessential use of Perlin noise today, terrain can be created with caves and caverns using a modified Perlin Noise implementation.</td>
+		<td><img src="/img/2014-08-09-perlinnoise/raw3d.png" style="width: 100%; max-width: 150px;" /></td>
+		<td style="font-size: 0.7em"><img src="/img/2014-08-09-perlinnoise/use3d.png" style="width: 100%; max-width: 150px;" /><br />Perhaps the quintessential use of Perlin noise today, terrain can be created with caves and caverns using a modified Perlin Noise implementation.</td>
 	</tr>
 </table>
 
-So as you can see, Perlin Noise has an application to many naturally-occurring phoenomenon.  Now let\'s look into the mathematics and logic of the Perlin Noise Algorithm.
+So as you can see, Perlin Noise has an application to many naturally-occurring phenomenon.  Now let\'s look into the mathematics and logic of the Perlin Noise Algorithm.
 
 Logical Overview
 ----------------
 
 *NOTE: I would like to preface this section by mentioning that a lot of it is taken from [this wonderful article by Matt Zucker](http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html).  However, that article is based on the original Perlin Noise algorithm written in the early 1980s.  In this post I will be using the Improved Perlin Noise Algorithm written in 2002.  Thus, there are some key differences between my version and Zucker\'s.*
 
-Let\'s start off with the basic perlin noise function:
+Let\'s start off with the basic Perlin Noise function:
 
 {% highlight csharp %}
 public double perlin(double x, double y, double z);
 {% endhighlight %}
 
-So we have an x, y and z coordinate as input, and as the output we get a <code>double</code> between 0.0 and 1.0.  So what do we do with this input?  First, we divide the x, y, and z coordinates into unit cubes.  In other words, find <code>[x,y,z] % 1.0</code> to find the coordinate's location within the cube.  Below is a representation of this concept in 2 dimensions:
+So we have an x, y and z coordinate as input, and as the output we get a <code>double</code> between 0.0 and 1.0.  So what do we do with this input?  First, we divide the x, y, and z coordinates into unit cubes.  In other words, find <code>[x,y,z] % 1.0</code> to find the coordinate\'s location within the cube.  Below is a representation of this concept in 2 dimensions:
 
 <p style="text-align: center">
-	<img src="/img/2014-08-02-perlinnoise/logic01.png" style="text-align: center; width: 100%; max-width: 148px;" /><br />
+	<img src="/img/2014-08-09-perlinnoise/logic01.png" style="text-align: center; width: 100%; max-width: 148px;" /><br />
 	<i>Figure 1: The blue dot here represents an input coordinate, and the other 4 points are the surrounding integral unit coordinates.</i> (<a href="http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html">Source</a>)
 </p>
 
-On each of the 4 unit coordinates (8 in 3D), we generate what\'s called a *pseudorandom gradient vector*.  This gradient vector defines a "positive" direction (in the direction that it points to) and of course a negative direction (in the direction opposite that it points to).  *Pseudorandom* means that, for any set of integers inputted into the gradient vector equation, the same result will always come out.  Thus, it seems random, but it isn\'t in reality.  Additionally this means that each integral coordinate has its \"own\" gradient that will never change if the gradient function doesn\'t change.
+On each of the 4 unit coordinates (8 in 3D), we generate what\'s called a *pseudorandom gradient vector*.  This gradient vector defines a positive direction (in the direction that it points to) and of course a negative direction (in the direction opposite that it points to).  *Pseudorandom* means that, for any set of integers inputted into the gradient vector equation, the same result will always come out.  Thus, it seems random, but it isn\'t in reality.  Additionally this means that each integral coordinate has its \"own\" gradient that will never change if the gradient function doesn\'t change.
 
 <p style="text-align: center">
-	<img src="/img/2014-08-02-perlinnoise/logic02.png" style="text-align: center; width: 100%; max-width: 246px;" /><br />
+	<img src="/img/2014-08-09-perlinnoise/logic02.png" style="text-align: center; width: 100%; max-width: 246px;" /><br />
 	<i>Figure 2: Based on the above image, here are some example gradient vectors.</i> (<a href="http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html">Source</a>)
 </p>
 
@@ -69,12 +68,12 @@ The image above is not completely accurate, however.  In Ken Perlin\'s *Improved
 (0,1,1),(0,-1,1),(0,1,-1),(0,-1,-1)
 {% endhighlight %}
 
-The reasoning behind these specific gradient vectors is described in [Ken Perlin\'s SIGGRAPH 2002 article: *Improving Noise*](http://mrl.nyu.edu/~perlin/paper445.pdf).  *NOTE: Many other articles about Perlin Noise refer to the original Perlin Noise algorithm, which does not use these vectors.  For example, Figure 2 represents the original algorithm because its source was written before the improved algorithm was released.  However, the basic idea is the same.*
+The reasoning behind these specific gradient vectors is described in [Ken Perlin\'s SIGGRAPH 2002 paper: *Improving Noise*](http://mrl.nyu.edu/~perlin/paper445.pdf).  *NOTE: Many other articles about Perlin Noise refer to the original Perlin Noise algorithm, which does not use these vectors.  For example, Figure 2 represents the original algorithm because its source was written before the improved algorithm was released.  However, the basic idea is the same.*
 
-Next, we need to calculate the 4 vectors (6 in 3D) from the given point to the 6 surrounding points on the grid.  An example case of this in 2D is shown below.
+Next, we need to calculate the 4 vectors (8 in 3D) from the given point to the 6 surrounding points on the grid.  An example case of this in 2D is shown below.
 
 <p style="text-align: center">
-	<img src="/img/2014-08-02-perlinnoise/logic03.png" style="text-align: center; width: 100%; max-width: 191px;" /><br />
+	<img src="/img/2014-08-09-perlinnoise/logic03.png" style="text-align: center; width: 100%; max-width: 191px;" /><br />
 	<i>Figure 3: Example distance vectors.</i> (<a href="http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html">Source</a>)
 </p>
 
@@ -85,7 +84,7 @@ grad.x * dist.x + grad.y * dist.y + grad.z * dist.z
 {% endhighlight %}
 
 <p style="text-align: center">
-	<img src="/img/2014-08-02-perlinnoise/logic04.png" style="text-align: center; width: 100%; max-width: 141px;" /><br />
+	<img src="/img/2014-08-09-perlinnoise/logic04.png" style="text-align: center; width: 100%; max-width: 141px;" /><br />
 	<i>Figure 4: A representation of these influences in 2D noise.</i> (<a href="http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html">Source</a>)
 </p>
 
@@ -97,8 +96,8 @@ So now all we need to do is interpolate between these 4 values so that we get a 
 // -----------
 // [g3] | [g4]
 int g1, g2, g3, g4;
-int u, v;	// These coordinates are the location of the input coordinate in its unit square.  
-			// For example a value of (0.5,0.5) is in the exact center of its unit square.
+int u, v;   // These coordinates are the location of the input coordinate in its unit square.  
+            // For example a value of (0.5,0.5) is in the exact center of its unit square.
 
 int x1 = lerp(g1,g2,u);
 int x2 = lerp(g3,h4,u);
@@ -109,11 +108,11 @@ int average = lerp(x1,x2,v);
 There is one final piece to this puzzle: with the above weighted average, the final result would look bad because linear interpolation, while computationally cheap, looks unnatural.  We need a smoother transition between gradients.  So, we use a *fade function*, also called an *ease curve*:
 
 <p style="text-align: center">
-	<img src="/img/2014-08-02-perlinnoise/logic05.png" style="text-align: center; width: 100%; max-width: 108px;" /><br />
+	<img src="/img/2014-08-09-perlinnoise/logic05.png" style="text-align: center; width: 100%; max-width: 108px;" /><br />
 	<i>Figure 5: This is an ease curve.</i> (<a href="http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html">Source</a>)
 </p>
 
-This ease curve is applied to the <code>u</code> and <code>v</code> values in the above code example.  This makes changes more gradual as one approaches integral coorinates.  The fade function for the improved perlin noise implementation is this:
+This ease curve is applied to the <code>u</code> and <code>v</code> values in the above code example.  This makes changes more gradual as one approaches integral coordinates.  The fade function for the improved perlin noise implementation is this:
 
 <p style="text-align: center">6<i>t</i><sup>5</sup>-5<i>t</i><sup>4</sup>+10<i>t</i><sup>3</sup></p>
 
@@ -122,15 +121,15 @@ Logically, that\'s it!  We now have all of the components needed to generate Per
 Code Implementation
 -------------------
 
-Once again, this code is written in C#.  The code is a slightly modified version of [Ken Perlin\'s Java Implementation](http://mrl.nyu.edu/~perlin/noise/).  It was modified for additional clarity and deobfuscation, as well as adding the ability to repeat (tile) noise.  The code is of course entirely free to use (considering I didn\'t really write it in the first place - Ken Perlin did!).
+Once again, this code is written in C#.  The code is a slightly modified version of [Ken Perlin\'s Java Implementationn](http://mrl.nyu.edu/~perlin/noise/).  It was modified for additional clarity and deobfuscation, as well as adding the ability to repeat (tile) noise.  The code is of course entirely free to use (considering I didn\'t really write it in the first place - Ken Perlin did!).
 
 ###Setting Up
 
 The first thing we need to do is set up our permutation table, or the <code>p[]</code> array for short.  This is simply a length 256 array of random values from 1 - 255 inclusive.  We also repeat this array (for a total size of 512) to avoid buffer overflow later on:
 
 {% highlight csharp %}
-private static readonly int[] permutation = { 151,160,137,91,90,15,					// Hash lookup table as defined by Ken Perlin.  This is a randomly
-	131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,	// arranged array of all numbers from 0-255 inclusive.
+private static readonly int[] permutation = { 151,160,137,91,90,15,                 // Hash lookup table as defined by Ken Perlin.  This is a randomly
+	131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,    // arranged array of all numbers from 0-255 inclusive.
 	190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
 	88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
 	77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
@@ -144,7 +143,7 @@ private static readonly int[] permutation = { 151,160,137,91,90,15,					// Hash 
 	138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180
 };
 
-private static readonly int[] p; 													// Doubled permutation to avoid overflow
+private static readonly int[] p;                                                    // Doubled permutation to avoid overflow
 
 static Perlin() {
 	p = new int[512];
@@ -160,15 +159,15 @@ Next, we begin our perlin noise function:
 
 {% highlight csharp %}
 public double perlin(double x, double y, double z) {
-	if(repeat > 0) {									// If we have any repeat on, change the coordinates to their "local" repetitions
+	if(repeat > 0) {                                    // If we have any repeat on, change the coordinates to their "local" repetitions
 		x = x%repeat;
 		y = y%repeat;
 		z = z%repeat;
 	}
 	
-	int xi = (int)x & 255;								// Calculate the "unit cube" that the point asked will be located in
-	int yi = (int)y & 255;								// The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
-	int zi = (int)z & 255;								// plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
+	int xi = (int)x & 255;                              // Calculate the "unit cube" that the point asked will be located in
+	int yi = (int)y & 255;                              // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
+	int zi = (int)z & 255;                              // plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
 	double xf = x-(int)x;
 	double yf = y-(int)y;
 	double zf = z-(int)z;
@@ -212,7 +211,9 @@ The <code>u / v / w</code> values will be used later with interpolation.
 
 The Perlin Noise hash function is used to get a unique value for every coordinate input.  A *hash function*, as defined by wikipedia, is:
 
->... any function that can be used to map data of arbitrary size to data of fixed size, with slight differences in input data producing very big differences in output data.
+<blockquote>
+&hellip;any function that can be used to map data of arbitrary size to data of fixed size, with slight differences in input data producing very big differences in output data.
+</blockquote>
 
 This is the hash function that Perlin Noise uses.  It uses the <code>p[]</code> table that we created earlier:
 
@@ -250,16 +251,16 @@ I have always thought that Ken Perlin\'s original <code>grad()</code> function i
 {% highlight csharp %}
 public static double grad(int hash, double x, double y, double z) {
 	int h = hash & 15;									// Take the hashed value and take the first 4 bits of it (15 == 0b1111)
-	double u = h < 8 /* 0b1000 */ ? x : y;				// If the most signifigant bit (MSB) of the hash is 0 then set u = x.  Otherwise y.
+	double u = h < 8 /* 0b1000 */ ? x : y;				// If the most significant bit (MSB) of the hash is 0 then set u = x.  Otherwise y.
 	
 	double v;											// In Ken Perlin's original implementation this was another conditional operator (?:).  I
 														// expanded it for readability.
 	
-	if(h < 4 /* 0b0100 */)								// If the first and second signifigant bits are 0 set v = y
+	if(h < 4 /* 0b0100 */)								// If the first and second significant bits are 0 set v = y
 		v = y;
-	else if(h == 12 /* 0b1100 */ || h == 14 /* 0b1110*/)// If the first and second signifigant bits are 1 set v = x
+	else if(h == 12 /* 0b1100 */ || h == 14 /* 0b1110*/)// If the first and second significant bits are 1 set v = x
 		v = x;
-	else 												// If the first and second signifigant bits are not equal (0/1, 1/0) set v = z
+	else 												// If the first and second significant bits are not equal (0/1, 1/0) set v = z
 		v = z;
 	
 	return ((h&1) == 0 ? u : -u)+((h&2) == 0 ? v : -v); // Use the last 2 bits to decide if u and v are positive or negative.  Then return their addition.
@@ -295,7 +296,8 @@ public static double grad(int hash, double x, double y, double z)
 }
 {% endhighlight %}
 
-In any case, both versions do the same thing.  They pick a random vector from the following 12 vectors:
+
+The source of the above code can be found [here](http://riven8192.blogspot.com/2010/08/calculate-perlinnoise-twice-as-fast.html).  In any case, both versions do the same thing.  They pick a random vector from the following 12 vectors:
 
 {% highlight csharp %}
 (1,1,0),(-1,1,0),(1,-1,0),(-1,-1,0),
@@ -314,11 +316,11 @@ public double perlin(double x, double y, double z) {
 	// ...
 
 	double x1, x2, y1, y2;
-	x1 = lerp(	grad (aaa, xf  , yf  , zf),				// The gradient function calculates the dot product between a pseudorandom
-				grad (baa, xf-1, yf  , zf),				// gradient vector and the vector from the input coordinate to the 8
-				u);										// surrounding points in its unit cube.
-	x2 = lerp(	grad (aba, xf  , yf-1, zf),				// This is all then lerped together as a sort of weighted average based on the faded (u,v,w)
-				grad (bba, xf-1, yf-1, zf),				// values we made earlier.
+	x1 = lerp(	grad (aaa, xf  , yf  , zf),             // The gradient function calculates the dot product between a pseudorandom
+				grad (baa, xf-1, yf  , zf),             // gradient vector and the vector from the input coordinate to the 8
+				u);                                     // surrounding points in its unit cube.
+	x2 = lerp(	grad (aba, xf  , yf-1, zf),             // This is all then lerped together as a sort of weighted average based on the faded (u,v,w)
+				grad (bba, xf-1, yf-1, zf),             // values we made earlier.
 		          u);
 	y1 = lerp(x1, x2, v);
 
@@ -330,7 +332,7 @@ public double perlin(double x, double y, double z) {
 	          	u);
 	y2 = lerp (x1, x2, v);
 	
-	return (lerp (y1, y2, w)+1)/2;						// For convenience we bind the result to 0 - 1 (theoretical min/max before is [-1, 1])
+	return (lerp (y1, y2, w)+1)/2;                      // For convenience we bind the result to 0 - 1 (theoretical min/max before is [-1, 1])
 }
 
 // Linear Interpolate
@@ -345,11 +347,48 @@ Working with Octaves
 One final thing I would like to discuss is how to process perlin noise to look more natural.  Even though perlin noise does provide a certain degree of natural behavior, it doesn't fully express the irregularities that one might expect in nature.  For example, a terrain has large, sweeping features such as mountains, smaller features such as hills and depressions, even smaller ones such as boulders and large rocks, and very small ones like pebbles and minute differences in the terrain.  The solution to this is simple: you take multiple noise functions with varying frequencies and amplitudes, and add them together.  Of course, *frequency* refers to the period at which data is sampled, and *amplitude* refers to the range at which the result can be in.
 
 <p style="text-align: center">
-	<img src="/img/2014-08-02-perlinnoise/octave01.png" style="text-align: center; width: 100%; max-width: 768px;" /><br />
-	<i>Figure 6: 6 Example noise results with differing frequencies and amplitudes.</i> (<a href="http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html">Source</a>)
+	<img src="/img/2014-08-09-perlinnoise/octave01.png" style="text-align: center; width: 100%; max-width: 768px;" /><br />
+	<i>Figure 6: 6 Example noise results with differing frequencies and amplitudes.</i> (<a href="http://freespace.virgin.net/hugo.elias/models/m_perlin.htm">Source</a>)
 </p>
+
+Add all of these results together, and you get this:
+
+<p style="text-align: center">
+	<img src="/img/2014-08-09-perlinnoise/octave02.png" style="text-align: center; width: 100%; max-width: 256px;" /><br />
+	<i>Figure 7: The addition of the 7 above results.</i> (<a href="http://freespace.virgin.net/hugo.elias/models/m_perlin.htm">Source</a>)
+</p>
+
+Obviously this result is much more convincing.  The above 6 sets of noise are called different *octaves* of noise.  Each successive octave has less and less influence on the final result.  Of course, with each octave there is a linear increase in code execution time, so you should try not to use more than just a few octaves at runtime (for example, with a procedural fire effect running at 60fps).  However, octaves are great when preprocessing data (such as generating terrain).
+
+But how *much* influence should each successive octave have, quantitatively?  This question is answered by another value called **persistence**.  [Hugo Elias](http://freespace.virgin.net/hugo.elias/models/m_perlin.htm) defines Persistence as follows:
+
+<blockquote>
+frequency = 2<sup>i</sup><br />
+amplitude = persistence<sup>i</sup>
+</blockquote>
+
+Where *i* is the octave in question.  In code, the implementation is simple:
+
+{% highlight csharp %}
+public double OctavePerlin(double x, double y, double z, int octaves, double persistence) {
+	double total = 0;
+	double frequency = 1;
+	double amplitude = 1;
+	double maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
+	for(int i=0;i<octaves;i++) {
+		total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
+		
+		maxValue += amplitude;
+		
+		amplitude *= persistence;
+		frequency *= 2;
+	}
+	
+	return total/maxValue;
+}
+{% endhighlight %}
 
 Conclusion
 ----------
 
-Finally, that\'s it!  We can now make noise.  [Once again, you can find the full source code here.](https://gist.github.com/Flafla2/f0260a861be0ebdeef76).  If you have any questions, please ask in the comments section below.  Thank you for reading!  
+Finally, that\'s it!  We can now make noise.  [Once again, you can find the full source code here](https://gist.github.com/Flafla2/f0260a861be0ebdeef76).  If you have any questions, please ask in the comments section below.  Thank you for reading!

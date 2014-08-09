@@ -1,4 +1,6 @@
-.highlight  { background: #ffffff; border: 1px solid #a9a9a9; border-radius: 5px; padding: 5px; overflow: auto;}
+.highlight, code  { background: #ffffff; border: 1px solid #a9a9a9; border-radius: 5px;}
+.highlight {padding: 5px; margin-bottom: 1em; overflow: auto;}
+.highlight code {border: 0 !important; background: clear !important; border-radius: 0 !important;}
 .highlight .c { color: #999988; font-style: italic } /* Comment */
 .highlight .err { color: #a61717; background-color: #e3d2d2 } /* Error */
 .highlight .k { font-weight: bold } /* Keyword */

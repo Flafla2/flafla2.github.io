@@ -6,7 +6,7 @@ The objective of this article is to present an easy-to-understand analysis of Ke
 
 Perlin Noise is an extremely powerful algorithm that is used often in procedural content generation.  It is especially useful for games and other visual media such as movies.  The man who created it, Ken Perlin, [won an academy award for the original implementation](http://mrl.nyu.edu/~perlin/doc/oscar.html).  In this article I will be exploring his [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/), published in 2002.
 
-In game development, Perlin Noise can be used for any sort of wave-like, undulating material or texture.  For example, it could be used for procedural terrain (*Minecraft*, for example uses Perlin Noise for its terrain generation), fire effects, water, and clouds.  These effects mostly represent Perlin noise in the 2<sup>nd</sup> and 3<sup>rd</sup> dimensions, but it can be extended into the 4<sup>th</sup> dimension rather trivially.  Additionally Perlin Noise can be used in only 1 dimension for purposes such as side-scrolling terrain(such as in *Terraria* or *Starbound*) or to create the illusion of handwritten lines.
+In game development, Perlin Noise can be used for any sort of wave-like, undulating material or texture.  For example, it could be used for procedural terrain (*Minecraft*-like terrain can be created with Perlin Noise, for example), fire effects, water, and clouds.  These effects mostly represent Perlin noise in the 2<sup>nd</sup> and 3<sup>rd</sup> dimensions, but it can be extended into the 4<sup>th</sup> dimension rather trivially.  Additionally Perlin Noise can be used in only 1 dimension for purposes such as side-scrolling terrain(such as in *Terraria* or *Starbound*) or to create the illusion of handwritten lines.
 
 Also, if you extend Perlin Noise into an additional dimension and consider the extra dimension as time, you can animate it.  For example, 2D Perlin Noise can be interpreted as Terrain, but 3D noise can similarly be interpreted as undulating waves in an ocean scene.  Below are some pictures of Noise in different dimensions and some of their uses at runtime:
 
@@ -70,7 +70,7 @@ The image above is not completely accurate, however.  In Ken Perlin\'s *Improved
 
 The reasoning behind these specific gradient vectors is described in [Ken Perlin\'s SIGGRAPH 2002 paper: *Improving Noise*](http://mrl.nyu.edu/~perlin/paper445.pdf).  *NOTE: Many other articles about Perlin Noise refer to the original Perlin Noise algorithm, which does not use these vectors.  For example, Figure 2 represents the original algorithm because its source was written before the improved algorithm was released.  However, the basic idea is the same.*
 
-Next, we need to calculate the 4 vectors (8 in 3D) from the given point to the 6 surrounding points on the grid.  An example case of this in 2D is shown below.
+Next, we need to calculate the 4 vectors (8 in 3D) from the given point to the 8 surrounding points on the grid.  An example case of this in 2D is shown below.
 
 <p style="text-align: center">
     <img src="/img/2014-08-09-perlinnoise/logic03.png" style="text-align: center; width: 100%; max-width: 191px;" /><br />

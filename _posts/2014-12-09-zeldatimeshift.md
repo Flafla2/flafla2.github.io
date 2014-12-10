@@ -15,7 +15,7 @@ Here is the result that I achieved with Unity 4.6:
 
 <p style="text-align: center">
     <iframe src="http://gfycat.com/ifr/ImpracticalFarColt" frameborder="0" scrolling="no" width="576" height="450" style="-webkit-backface-visibility: hidden;-webkit-transform: scale(1);" >you shouldn't be seeing this</iframe><br />
-    <i>Zelda&#39;s Timeshift Orbs</i>
+    <i>My Implementation in Unity3D</i>
 </p>
 
 You can find the source code to my implementation [on my GitHub](http://github.com/Flafla2/Zelda-Timeshift-Demo).

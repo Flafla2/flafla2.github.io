@@ -9,9 +9,13 @@ title: flafla2's soapbox
 			<div class="article">
 				<a href="{{ post.url }}"><h2>{{ post.title }}</h2></a>
 				<p class="postinfo">Posted on {{ post.date | date_to_long_string }} by {{ post.author }}</p>
-				{{ post.content | truncatewords: 100 }}
-				<br />
-				<a href="{{ post.url }}">&raquo; read more</a>
+				{{ post.content | split:'<!--break-->' | first }}
+				{% if post.content contains '<!--break-->' %}
+					<br />
+					<a href="{{ post.url }}">&raquo; read more</a>
+				{% else %}
+					<br />
+				{% endif %}
 			</div>
 			<br />
 			{% endif %}
@@ -21,7 +25,7 @@ title: flafla2's soapbox
 				{% for page in (1..paginator.total_pages) %}
 					{% if page == paginator.page %}
 						{{ page }}
-					{% elsif page == 1%}
+					{% elsif page == 1 %}
 						<a href="{{ '/index.html' | prepend: site.baseurl | replace: '//', '/' }}">1</a>
 					{% else %}
 						<a href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', page }}">{{ page }}</a>

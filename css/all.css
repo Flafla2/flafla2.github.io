@@ -108,8 +108,28 @@ a:active {
 	color: #A6A6A6;
 }
 
+.math {
+	font-family: "Times New Roman", serif;
+}
+
 #pagination {
 	text-align: center;
+}
+
+/*******GFYCAT RESPONSIVE DESIGN FIX*********/
+.media-flex {
+    position: relative;
+    height: 0px;
+}
+
+.media-flex .gfyitem > div,
+.media-flex .gfyitem .gfyPreLoadCanvas,
+.media-flex .gfyitem .gfyVid,
+.media-flex .gfyitem  .gfyGif {
+    position: absolute !important;
+    top: 0; right: 0; bottom: 0; left: 0;
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /*******BEGIN MOBILE CONTENT*******/

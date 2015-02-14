@@ -4,8 +4,12 @@ title: Implementing Skyward Sword&#39;s Timeshift Stones in Unity
 
 Nintendo is well-known for its polish and excellent use of resources, even while using the relatively underpowered Wii hardware.  They often develop game mechanics with this in mind, and this limitation brings out some of Nintendo&#39;s true genius in game design.  One of my favorite mechanics that take advantage of the hardware like this are the so-called *timeshift orbs* in *The Legend of Zelda: Skyward Sword*.  Essentially the idea behind these is that the timeshift orbs take everything in a radius around it and send it &quot;back in time&quot; like so:
 
+<div style="max-width:512px;max-height:auto;display:block;margin-left:auto;margin-right:auto;">
+    <div class="media-flex" style="padding-bottom: 56.25%;">
+        <img class="gfyitem" data-id="ConventionalPepperyJellyfish"/><br />
+    </div>
+</div>
 <p style="text-align: center">
-    <iframe src="http://gfycat.com/ifr/ConventionalPepperyJellyfish" frameborder="0" scrolling="no" width="600" height="338" style="-webkit-backface-visibility: hidden;-webkit-transform: scale(1);" >you shouldn't be seeing this</iframe><br />
     <i>Zelda&#39;s Timeshift Orbs</i>
 </p>
 
@@ -13,8 +17,12 @@ While this effect seems complicated at first, it is actually pretty simple to im
 
 Here is the result that I achieved with Unity 4.6:
 
+<div style="max-width:512px;max-height:auto;display:block;margin-left:auto;margin-right:auto;">
+    <div class="media-flex" style="padding-bottom: 78.125%;">
+        <img class="gfyitem" data-id="ImpracticalFarColt"/><br />
+    </div>
+</div>
 <p style="text-align: center">
-    <iframe src="http://gfycat.com/ifr/ImpracticalFarColt" frameborder="0" scrolling="no" width="576" height="450" style="-webkit-backface-visibility: hidden;-webkit-transform: scale(1);" >you shouldn't be seeing this</iframe><br />
     <i>My Implementation in Unity3D</i>
 </p>
 

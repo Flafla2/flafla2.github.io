@@ -14,5 +14,6 @@ Here is a video of the some of the API&#39;s features:
 
 <center><iframe width="560" height="315" src="https://www.youtube.com/embed/co7xggFfE94" frameborder="0" allowfullscreen></iframe></center>
 
-You can download the latest release [here](https://github.com/Flafla2/Unity-Wiimote/releases).
+You can download the latest release [here](https://github.com/Flafla2/Unity-Wiimote/releases).  The API's source code
+(including a full demo scene) can be found [here](https://github.com/Flafla2/Unity-Wiimote).
 <!--break-->

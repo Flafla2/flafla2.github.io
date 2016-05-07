@@ -1,6 +1,6 @@
 paginate: 5
 paginate_path: "page:num"
-highlighter: pygments
+gems: [jekyll-paginate]
 defaults:
   -
     scope:
@@ -11,3 +11,6 @@ defaults:
       author: "Flafla2"
       comments: true
       visible: true
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge

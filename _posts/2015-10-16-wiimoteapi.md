@@ -12,7 +12,7 @@ response to this, I have created a cross-platform Wii Remote communication layer
 
 Here is a video of the some of the API&#39;s features:
 
-<center><iframe width="560" height="315" src="https://www.youtube.com/embed/co7xggFfE94" frameborder="0" allowfullscreen></iframe></center>
+<div class="video-center"><div class="video-container"><iframe width="560" height="315" src="https://www.youtube.com/embed/co7xggFfE94" frameborder="0" allowfullscreen></iframe></div></div>
 
 You can download the latest release [here](https://github.com/Flafla2/Unity-Wiimote/releases).  The API's source code
 (including a full demo scene) can be found [here](https://github.com/Flafla2/Unity-Wiimote).

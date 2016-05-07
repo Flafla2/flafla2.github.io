@@ -132,6 +132,27 @@ a:active {
     height: 100% !important;
 }
 
+/*******YOUTUBE RESPONSIVE DESIGN FIX*********/
+.video-center {
+	max-width: 560px;
+	margin: 0 auto;
+}
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    padding-top: 30px; height: 0; overflow: hidden;
+}
+ 
+.video-container iframe,
+.video-container object,
+.video-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
 /*******BEGIN MOBILE CONTENT*******/
 
 .nav#mobile {
@@ -149,8 +170,8 @@ a:active {
 	width: 100%;
 
 	background-color: #F0F1F2;
-	border-left: 1px solid #AAAAAA;
-	border-right: 1px solid #AAAAAA;
+	border-left: 0;
+	border-right: 0;
 	border-bottom: 1px solid #AAAAAA;
 	box-shadow: 0 0 80px rgba(170, 170, 170, 1); 
 }
@@ -196,5 +217,7 @@ a:active {
 @media all and (min-width: 925px) {
 	.content {
 		width: 925px;
+		border-left: 1px solid #AAAAAA;
+		border-right: 1px solid #AAAAAA;
 	}
 }

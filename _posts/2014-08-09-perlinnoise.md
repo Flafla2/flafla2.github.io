@@ -139,7 +139,7 @@ Code Implementation
 
 Once again, this code is written in C#.  The code is a slightly modified version of [Ken Perlin\'s Java Implementation](http://mrl.nyu.edu/~perlin/noise/).  It was modified for additional clarity and deobfuscation, as well as adding the ability to repeat (tile) noise.  The code is of course entirely free to use (considering I didn\'t really write it in the first place - Ken Perlin did!).
 
-###Setting Up
+### Setting Up
 
 The first thing we need to do is set up our permutation table, or the <code>p[]</code> array for short.  This is simply a length 256 array of random values from 0 - 255 inclusive.  We also repeat this array (for a total size of 512) to avoid buffer overflow later on:
 
@@ -194,7 +194,7 @@ public double perlin(double x, double y, double z) {
 
 This code is pretty self explanatory.  First, we use the modulo (remainder) operator to have our input coordinates overflow if they are over the <code>repeat</code> variable.  Next, we create variables <code>xi, yi, zi</code>.  These represent the unit cube that our coordinate is in.  We also bind our coordinates to the range [0,255] inclusive so that we won\'t run into overflow errors later on when we access the <code>p[]</code> array.  This also has an unfortunate side effect: Perlin noise always repeats every 256 coordinates.  This isn\'t a problem though because decimal coordinates are possible with perlin noise.  Finally we find the location of our coordinate inside its unit cube.  This is essentially <code>n = n % 1.0</code> where *n* is a coordinate.
 
-###The Fade Function
+### The Fade Function
 
 Now we need to define our fade function, described above (Figure 5).  As mentioned earlier, this is the Perlin Noise fade function:
 
@@ -223,7 +223,7 @@ public double perlin(double x, double y, double z) {
 
 The <code>u / v / w</code> values will be used later with interpolation.
 
-###The Hash Function
+### The Hash Function
 
 The Perlin Noise hash function is used to get a unique value for every coordinate input.  A *hash function*, as defined by wikipedia, is:
 
@@ -260,7 +260,7 @@ public int inc(int num) {
 
 The above hash function hashes all 8 unit cube coordinates surrounding the input coordinate.  <code>inc()</code> is simply used to increment the numbers and make sure that the noise still repeats.  If you didn't care about the ability to repeat, <code>inc(xi)</code> can be replaced by <code>xi+1</code>.  The result of this hash function is a value between 0 and 255 (inclusive) because of our <code>p[]</code> array.
 
-###The Gradient Function
+### The Gradient Function
 
 I have always thought that Ken Perlin\'s original <code>grad()</code> function is needlessly complicated and confusing.  Remember, the goal of <code>grad()</code> is to calculate the dot product of a randomly selected gradient vector and the 8 location vectors.  Ken Perlin used some fancy bit-flipping code to accomplish this:
 
@@ -323,7 +323,7 @@ The source of the above code can be found [here](http://riven8192.blogspot.com/2
 
 This is determined by the last 4 bits of the hash function value (the first parameter of <code>grad()</code>).  The other 3 parameters represent the location vector (that will be used for the dot product).
 
-###Putting it all Together
+### Putting it all Together
 
 Now, we take all of these functions, use them for all 8 surrounding unit cube coordinates, and interpolate them together:
 
@@ -409,7 +409,7 @@ Conclusion
 
 Finally, that\'s it!  We can now make noise.  [Once again, you can find the full source code here](https://gist.github.com/Flafla2/f0260a861be0ebdeef76).  If you have any questions, please ask in the comments section below.
 
-###References
+### References
 Here are some references that you can check out if you are interested:
 
 * [Ken Perlin\'s \"Official\" Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/) - This is the original algorithm as written by Ken Perlin.
@@ -420,6 +420,6 @@ Here are some references that you can check out if you are interested:
 
 Thank you for reading!
 
-####Updates
+#### Updates
 
 8/9/14 - I have updated the article to include a better explanation about dot products, and I fixed some typos in the article.  Huge thanks to all of the advice given to me by reddit [/r/programming](http://www.reddit.com/r/programming/comments/2d28p6/understanding_perlin_noise_an_indepth_look_at_the/), [/r/gamedev](http://www.reddit.com/r/gamedev/comments/2d284n/understanding_perlin_noise_an_indepth_look_at_the/), and [/r/Unity3D](http://www.reddit.com/r/Unity3D/comments/2d29jj/understanding_perlin_noise_an_indepth_look_at_the/).

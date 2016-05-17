@@ -56,3 +56,6 @@ This system solves a number of problems:
   this reason the system draws a box around where the chaperone bounds will be.
 * **Reducing Discomfort**: The screen fades in and fades out upon teleportation (the display "blinks"), reducing fatigue
   and nausea for the user.
+
+Once again you can take a look at the project [here on Github](https://github.com/Flafla2/Vive-Teleporter).  Thanks for
+reading!

@@ -10,7 +10,7 @@ licence.
 
 <div style="max-width:750px;max-height:auto;display:block;margin-left:auto;margin-right:auto;">
     <div class="media-flex" style="padding-bottom: 42.735%;">
-        <div class='gfyitem' data-controls='false' data-expand='true' data-id="HonorableComplexCutworm"></div><br />
+        <div class='gfyunveil' gfy-name="HonorableComplexCutworm"></div><br />
     </div>
 </div>
 <p style="text-align: center">

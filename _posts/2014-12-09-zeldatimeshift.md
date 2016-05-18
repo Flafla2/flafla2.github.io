@@ -6,7 +6,7 @@ Nintendo is well-known for its polish and excellent use of resources, even while
 
 <div style="max-width:512px;max-height:auto;display:block;margin-left:auto;margin-right:auto;">
     <div class="media-flex" style="padding-bottom: 56.25%;">
-        <div class='gfyitem' data-controls='false' data-expand='true' data-id='ConventionalPepperyJellyfish'></div><br />
+        <div class='gfyunveil' gfy-name='ConventionalPepperyJellyfish'></div><br />
     </div>
 </div>
 <p style="text-align: center">
@@ -19,7 +19,7 @@ Here is the result that I achieved with Unity 4.6:
 
 <div style="max-width:512px;max-height:auto;display:block;margin-left:auto;margin-right:auto;">
     <div class="media-flex" style="padding-bottom: 78.125%;">
-        <div class='gfyitem' data-controls='false' data-expand='true' data-id="ImpracticalFarColt"></div><br />
+        <div class='gfyunveil' gfy-name="ImpracticalFarColt"></div><br />
     </div>
 </div>
 <p style="text-align: center">

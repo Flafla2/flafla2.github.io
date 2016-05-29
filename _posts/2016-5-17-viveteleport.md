@@ -25,22 +25,15 @@ of this system.  Look out for that soon!
 This system solves a number of problems:
 
 * **Calculating Navigable Space**: You obviously don't want the player to be able to teleport out of bounds, or inside
-  opaque objects.  To solve this problem, my system uses Unity's generated Navigation Mesh as the boundaries that the
-  player can teleport to.  Because this process is piggybacking Unity's work, it is stable and can be used reliably in most
-  projects.  In order to preload this data, you must:
-
-  * Change the Navigation settings in Unity to something that makes sense for Vive locomotion (for example, set Max Slope
-    to zero because the player can't walk up slopes).
-  * Bake the Navigation Mesh in Unity
-  * Add a "Vive Nav Mesh" component anywhere in your scene, and click the "Update Navmesh Data" button in the inspector
-  * Change your Navigation settings back to their original values and rebake (to be used for other things like AI, etc.)
-  
-  You can of course update the Vive Nav Mesh component with new NavMesh bakes whenever you update the scene.  The above
-  process is illustrated below:
+   opaque objects.  To solve this problem, my system uses Unity's generated Navigation Mesh as the boundaries that the
+   player can teleport to.  Because this process is piggybacking Unity's work, it is stable and can be used reliably
+   in most projects.  In order to preload this data, simply add a "Vive Nav Mesh" component anywhere in your scene, and
+   click the "Update Navmesh Data" button in the inspector.  You can of course update the Vive Nav Mesh component with
+   new NavMesh bakes whenever you update the scene.  The above process is illustrated below:
    
   <div style="max-width:700px;max-height:auto;display:block;margin-left:auto;margin-right:auto;">
       <div class="media-flex" style="padding-bottom: 66.865%;">
-          <div class='gfyitem' data-controls='false' data-expand='true' data-id="WelldocumentedForcefulAlaskanmalamute"></div><br />
+          <div class='gfyitem' data-controls='false' data-expand='true' data-id="SorrowfulThriftyAfricanpiedkingfisher"></div><br />
       </div>
   </div>
   <p style="text-align: center">

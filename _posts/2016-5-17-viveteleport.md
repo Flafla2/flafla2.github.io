@@ -39,11 +39,6 @@ This system solves a number of problems:
   <p style="text-align: center">
       <i>The process of updating the Vive navmesh.</i>
   </p>
-  
-  It's worth mentioning that this whole process could be automated completely if Unity exposed Navigation settings
-  to editor scripts (currently it does not do this).  If you want to help this project a bit, please [vote on this page
-  on Unity Feedback](https://feedback.unity3d.com/suggestions/expose-navigation-settings-to-editor-scripts)!
-  
 * **Selecting a Teleport Destination**: This system uses an intuitive parabolic curve selection mechanism using simple
   kinematic equations.  Once again, this was inspired by Valve's *The Lab*.  As the user raises their controller to a higher
   angle, the selection point grows farther away.  If the user raises the remote past 45 degrees (maximum distance of a parabolic

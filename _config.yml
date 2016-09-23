@@ -11,6 +11,18 @@ defaults:
       author: "Flafla2"
       comments: true
       visible: true
+  -
+    scope:
+      path: ""
+      type: tags
+    values:
+      layout: "tag"
+collections:
+  tags:
+    output: true
+    permalink: /tags/:path/
+
 kramdown:
   input: GFM
   syntax_highlighter: rouge
+  hard_wrap: false

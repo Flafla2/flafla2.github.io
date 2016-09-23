@@ -1,6 +1,6 @@
 ---
 title: Wii Remote API for Unity and C#
-tag: Project
+tag: project
 ---
 
 Within the past 10 years motion controls have become an integral part of gaming and console game development.  The Wii

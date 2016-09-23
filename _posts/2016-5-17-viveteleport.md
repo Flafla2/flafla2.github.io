@@ -8,10 +8,8 @@ traverse VR environments that are bigger than the play area.  You can check out 
 [here on Github](https://github.com/Flafla2/Vive-Teleporter).  The Github project is open source and licenced under the MIT
 licence.
 
-<div style="max-width:750px;max-height:auto;display:block;margin-left:auto;margin-right:auto;">
-    <div class="media-flex" style="padding-bottom: 42.735%;">
-        <div class='gfyunveil' gfy-name="HonorableComplexCutworm"></div><br />
-    </div>
+<div style="max-width:750px;display:block;margin:0 auto;">
+    <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="HonorableComplexCutworm"></div>
 </div>
 <p style="text-align: center">
     <i>Myself demoing the system in the HTC Vive</i>
@@ -31,11 +29,9 @@ This system solves a number of problems:
    click the "Update Navmesh Data" button in the inspector.  You can of course update the Vive Nav Mesh component with
    new NavMesh bakes whenever you update the scene.  The above process is illustrated below:
    
-  <div style="max-width:700px;max-height:auto;display:block;margin-left:auto;margin-right:auto;">
-      <div class="media-flex" style="padding-bottom: 66.865%;">
-          <div class='gfyitem' data-controls='false' data-expand='true' data-id="SorrowfulThriftyAfricanpiedkingfisher"></div><br />
-      </div>
-  </div>
+   <div style="max-width:750px;display:block;margin:0 auto;">
+      <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="SorrowfulThriftyAfricanpiedkingfisher"></div>
+   </div>
   <p style="text-align: center">
       <i>The process of updating the Vive navmesh.</i>
   </p>

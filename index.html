@@ -8,7 +8,12 @@ title: adrian's soapbox
 			{% if post.visible == true %}
 			<div class="article">
 				<a href="{{ post.url }}"><h2>{{ post.title }}</h2></a>
-				<p class="postinfo">Posted on {{ post.date | date_to_long_string }} by {{ post.author }}</p>
+				<p class="postinfo">
+				{% if post.tag != null %}
+				<span class="post_tag">{{ post.tag }}</span>
+				{% endif %}
+				Posted on {{ post.date | date_to_long_string }} by {{ post.author }}
+				</p>
 				{{ post.content | split:'<!--break-->' | first }}
 				{% if post.content contains '<!--break-->' %}
 					<br />

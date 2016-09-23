@@ -1,5 +1,6 @@
 ---
 title: Demo Reel
+tag: Project
 ---
 
 Here is a short demo reel of my proudest work that I created for undergraduate university applications.  It highlights

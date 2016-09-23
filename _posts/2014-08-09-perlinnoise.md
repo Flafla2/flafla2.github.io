@@ -1,5 +1,6 @@
 ---
 title: Understanding Perlin Noise
+tag: Technical Writeup
 ---
 
 The objective of this article is to present an easy-to-understand analysis of Ken Perlin\'s [Improved Perlin Noise](http://mrl.nyu.edu/~perlin/noise/).  The code in this article is written in C# and is free to use.  If you would prefer to just look at the final result, [you can view the final source here](https://gist.github.com/Flafla2/f0260a861be0ebdeef76).

@@ -1,5 +1,6 @@
 ---
 title: HTC Vive Teleportation System with Parabolic Pointer
+tag: Project
 ---
 
 Here I present an easy-to-use teleportation system for the HTC Vive and the Unity game engine. The system is modelled

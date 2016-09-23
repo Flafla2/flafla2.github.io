@@ -52,6 +52,21 @@ blockquote p {
 	padding-bottom: 0 !important;
 }
 
+.post_tag {
+	display: inline-block;
+	padding: 2px 4px;
+
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+
+	border: 1px solid #888888;
+
+	color: #FFFFFF;
+	font-weight: bold;
+	background-color: #2A94D6;
+}
+
 #footer {
 	position: relative;
 	top: 5px;

@@ -1,5 +1,6 @@
 ---
 title: Implementing Skyward Sword&#39;s Timeshift Stones in Unity
+tag: Technical Writeup
 ---
 
 Nintendo is well-known for its polish and excellent use of resources, even while using the relatively underpowered Wii hardware.  They often develop game mechanics with this in mind, and this limitation brings out some of Nintendo&#39;s true genius in game design.  One of my favorite mechanics that take advantage of the hardware like this are the so-called *timeshift orbs* in *The Legend of Zelda: Skyward Sword*.  Essentially the idea behind these is that the timeshift orbs take everything in a radius around it and send it &quot;back in time&quot; like so:

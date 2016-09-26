@@ -405,7 +405,7 @@ fixed4 frag (v2f i) : SV_Target
     // ray origin (camera position)
     float3 ro = _CameraWS;
 
-    fixed3 col = tex2D(_MainTex,i.uv);
+    fixed3 col = tex2D(_MainTex,i.uv); // Color of the scene before this shader was run
     fixed4 add = raymarch(ro, rd);
 
     // Returns final color using alpha blending
@@ -413,7 +413,7 @@ fixed4 frag (v2f i) : SV_Target
 }
 {% endhighlight %}
 
-All we are doing here is receiving our ray data from the vertex shader and passing it along to ``raymarch()``.  We finally blend the result with ``_MainTex`` (the rendered scene before applying this shader) using [alpha blending](https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending).  Recall that ``_CameraWS`` represents the world-space position of the camera and was passed to the shader as a uniform [earlier in our C# script](#step-2-passing-the-rays-to-the-gpu).
+All we are doing here is receiving our ray data from the vertex shader and passing it along to ``raymarch()``.  We finally blend the result with ``_MainTex`` (the rendered scene before applying this shader) using standard [alpha blending](https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending).  Recall that ``_CameraWS`` represents the world-space position of the camera and was passed to the shader as a uniform [earlier in our C# script](#step-2-passing-the-rays-to-the-gpu).
 
 Open up Unity again, and behold!  A torus!
 
@@ -426,11 +426,227 @@ Open up Unity again, and behold!  A torus!
 
 ## Adding Lighting
 
-*\[Not written\]*
+We have made some great progress thus far: by now we can render arbitrary shapes with infinite resolution using raymarching.  However, of course, it would be hard to actually use raymarched objects in a game without being able to light them (except, I guess, in some sort of abstract game).
+
+To perform any sort of lighting calculation of an object, you must first calculate the normals of that object.  This is because light reflects off of objects as a function of their normals.  More concretely, any [BDRF](https://en.wikipedia.org/wiki/Bidirectional_reflectance_distribution_function) requires the normal of the surface as input.  In a normal polygonal 3D mesh, it is easy to find the normals of the object, because finding the normals of a triangle is an [easily solved problem](https://en.wikipedia.org/wiki/Cross_product).  However, in our case finding the normals of an object inside of a distance field isn't so obvious.
+
+It turns out that, at any point on a surface defined in the distance field, the *gradient* of the distance field is the same as the normals of the object at that point.  The gradient of a scalar field (such as a signed distance field) is essentially the derivative of the field in the x, y, and z directions.  In other words, for each dimension *d* we fix the other two dimensions and approximate the derivative of the field along *d*.  Intuitively, the distance field value grows fastest when moving directly away from an object (that is, along it's normal).  So, by calculating the gradient at some point we have also calculated the surface normal at that point.
+
+Here is how we approximate this gradient in code:
+
+{% highlight c linenos %}
+float3 calcNormal(in float3 pos)
+{
+    // epsilon - used to approximate dx when taking the derivative
+    const float2 eps = float2(0.001, 0.0);
+
+    // The idea here is to find the "gradient" of the distance field at pos
+    // Remember, the distance field is not boolean - even if you are inside an object
+    // the number is negative, so this calculation still works.
+    // Essentially you are approximating the derivative of the distance field at this point.
+    float3 nor = float3(
+        map(pos + eps.xyy).x - map(pos - eps.xyy).x,
+        map(pos + eps.yxy).x - map(pos - eps.yxy).x,
+        map(pos + eps.yyx).x - map(pos - eps.yyx).x);
+    return normalize(nor);
+}
+{% endhighlight %}
+
+Be careful however, because this technique is quite expensive!  You have to calculate your distance field a total of 6  extra times for each pixel in order to find the gradient.
+
+Now that we have the ability to find the normals of objects, we can begin to light things!  Of course, we need a light source first.  In order to pass a light source to our shader, we need to modify our scripts a bit:
+
+{% highlight csharp linenos %}
+// ...
+
+public class TutorialRaymarch : SceneViewFilter {
+
+    // ...
+
+    public Transform SunLight;
+
+    // ...
+
+    void OnRenderImage(RenderTexture source, RenderTexture destination)
+    {
+        // ...
+
+        EffectMaterial.SetVector("_LightDir", SunLight ? SunLight.forward : Vector3.down);
+
+        // ...
+
+        CustomGraphicsBlit(source, destination, EffectMaterial, 0);
+    }
+
+    // ...
+}
+{% endhighlight %}
+
+These additions simply pass along a vector to our shader that describes the direction of the sun.  You can pass along more information (such as light intensity, color, etc.) if you would like, but we'll keep it simple for now and assume that it is a simple white directional light with intensity 1.0.  This vector is passed to our scripts by the shader uniform ``_LightDir``.  We can now use ``_LightDir`` along with ``calcNormal()`` to light our objects:
+
+{% highlight c linenos %}
+// ...
+
+uniform float3 _LightDir;
+
+// ...
+
+fixed4 raymarch(float3 ro, float3 rd) {
+    fixed4 ret = fixed4(0,0,0,0);
+
+    const int maxstep = 64;
+    float t = 0; // current distance traveled along ray
+    for (int i = 0; i < maxstep; ++i) {
+        float3 p = ro + rd * t; // World space position of sample
+        float d = map(p);       // Sample of distance field (see map())
+
+        // If the sample <= 0, we have hit something (see map()).
+        if (d < 0.01) {
+            // Lambertian Lighting
+            float3 n = calcNormal(p);
+            ret = fixed4(dot(-_LightDir.xyz, n).rrr, 1);
+            break;
+        }
+
+        // If the sample > 0, we haven't hit anything yet so we should march forward
+        // We step forward by distance d, because d is the minimum distance possible to intersect
+        // an object (see map()).
+        t += d;
+    }
+    return ret;
+}
+
+// ...
+{% endhighlight %} 
+
+We use the [Lambertian Reflectance Model](https://en.wikipedia.org/wiki/Lambert%27s_cosine_law) above on lines 18-20, but you could use any [BDRF](https://en.wikipedia.org/wiki/Bidirectional_reflectance_distribution_function) that you want (just like with normal 3D models!).  Back in the Unity editor, assign the script's "Sun Light" attribute to a directional light in the scene, and you will find a very nicely lit torus indeed:
+
+<p style="text-align: center">
+    <img src="/img/2016-5-30-raymarching/littorus.png" style="width: 100%; max-width: 300px;" /><br />
+    <i>Our torus with lambertian lighting</i>
+</p>
 
 ## Interacting With Mesh-Based Objects
 
-*\[Not written\]*
+So now you have constructed a bunch of objects using distance fields that are incredibly complicated and you are finally ready to integrate them into your Unity project.  However, you run into a major problem very quickly: Mesh-based objects and raymarched objects can't interact or touch each other!  In fact, the raymarched objects *always* float on top of everything else, because our raymarcher doesn't take depth into account.  The video below illustrates this:
+
+<div style="max-width:500px;display:block;margin:0 auto;">
+    <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="GrossThoroughEasternnewt"></div>
+</div>
+<p style="text-align: center">
+    <i>My brain hurts...</i>
+</p>
+
+To fix this problem, we need to find the distance along each ray at which the closest mesh-based object lies.  If our raymarch loop marches past this point, we bail out and render that object instead (because it is in front of any potential raymarched objects).
+
+To find this distance, we need to take advantage of the depth buffer.  The depth buffer is accessible to all image effects shaders and stores the *eyespace* depth of the closest object in the scene for each pixel.  Refer to figure 5 below for more context.
+
+<p style="text-align: center">
+    <img src="/img/2016-5-30-raymarching/figure5.png" style="width: 100%; max-width: 600px;" /><br />
+    <i>Figure 5: Diagram of the measurements we are interested in when calculating depth.  The red line is the ray for some arbitrary pixel.</i>
+</p>
+
+In Figure 5, the magnitude of *r* is the measurement that we are trying to find (depth beyond which we should bail out in the raymarch loop).  The magnitude of *d* is the eyespace depth that is given to us for that pixel by the depth buffer (note that *d* is shorter than *r*, because *d* does not account for perspective).
+
+In order to find the magnitude of *r* we can simply leverage the rules of similar triangles.  Consider *r<sub>n</sub>*, the vector with the same direction as *r* but with length 1.0 in the z direction.  We can write *r<sub>n</sub>* as:
+
+<center><span class="math"><i>r<sub>n</sub> = r<sub>d</sub></i> &#247; (<i>r<sub>d</sub></i>)<i>.z</i></span></center>
+
+In the above equation, *r<sub>d</sub>* is the vector with the same direction as *r* but with an arbitrary length (in other words, the ray vector that our shader is given). Clearly, from Figure 5 *r* and *r<sub>n</sub>* create two similar triangles.  By multiplying *r<sub>n</sub>* by *d* (which we know from the depth buffer) we can derive *r* and its magnitude as follows:
+
+<center>
+    <span class="math">| <i>r</i> | / <i>d</i> = <i>r<sub>d</sub></i> / 1.0</span><br />
+    <span class="math">| <i>r</i> | = <i>r<sub>d</sub></i> &#215; <i>d</i></span>
+</center>
+
+### Using the depth buffer in our shader
+
+Now we need to make some modifications to our code to align with the above theory.  First, we need to make some changes to our vertex shader so that it returns *r<sub>n</sub>* instead of *r<sub>d</sub>*:
+
+{% highlight c linenos %}
+v2f vert (appdata v)
+{
+    // ...
+
+    // Dividing by z "normalizes" it in the z axis
+    // Therefore multiplying the ray by some number i gives the viewspace position
+    // of the point on the ray with [viewspace z]=i
+    o.ray /= abs(o.ray.z);
+
+    // Transform the ray from eyespace to worldspace
+    o.ray = mul(_CameraInvViewMatrix, o.ray);
+
+    return o;
+}
+{% endhighlight %}
+
+Note that we are dividing by ``abs(o.ray.z)`` instead of simply ``o.ray.z``.  This is because in eyespace coordinates, ``z < 0`` corresponds to the forward direction.  If we were to divide by a negative number, the ray direction would flip when dividing (and therefore the entire raymarched scene would appear flipped).
+
+The final step is to integrate depth into our fragment shader and raymarch loop:
+
+{% highlight c linenos %}
+// Raymarch along given ray
+// ro: ray origin
+// rd: ray direction
+// s: unity depth buffer
+fixed4 raymarch(float3 ro, float3 rd, float s) {
+    fixed4 ret = fixed4(0,0,0,0);
+
+    const int maxstep = 64;
+    float t = 0; // current distance traveled along ray
+    for (int i = 0; i < maxstep; ++i) {
+        // If we run past the depth buffer, stop and return nothing (transparent pixel)
+        // this way raymarched objects and traditional meshes can coexist.
+        if (t >= s) {
+            ret = fixed4(0, 0, 0, 0);
+            break;
+        }
+
+        // ...
+    }
+
+    return ret;
+}
+
+// ...
+uniform sampler2D _CameraDepthTexture;
+// ...
+
+fixed4 frag (v2f i) : SV_Target
+{
+    // ray direction
+    float3 rd = normalize(i.ray.xyz);
+    // ray origin (camera position)
+    float3 ro = _CameraWS;
+
+    float2 duv = i.uv;
+    #if UNITY_UV_STARTS_AT_TOP
+    if (_MainTex_TexelSize.y < 0)
+        duv.y = 1 - duv.y;
+    #endif
+
+    // Convert from depth buffer (eye space) to true distance from camera
+    // This is done by multiplying the eyespace depth by the length of the "z-normalized"
+    // ray (see vert()).  Think of similar triangles: the view-space z-distance between a point
+    // and the camera is proportional to the absolute distance.
+    float depth = LinearEyeDepth(tex2D(_CameraDepthTexture, duv).r);
+    depth *= length(i.ray.xyz);
+
+    fixed3 col = tex2D(_MainTex,i.uv);
+    fixed4 add = raymarch(ro, rd, depth);
+
+    // Returns final color using alpha blending
+    return fixed4(col*(1.0 - add.w) + add.xyz * add.w,1.0);
+}
+{% endhighlight %}
+
+On line 45, we access Unity's depth texture using the standard Unity shader uniform ``_CameraDepthTexture``, and convert it to eyespace depth using ``LinearEyeDepth()``.  For more information about depth textures and Unity, [see this page from the Unity Manual](https://docs.unity3d.com/Manual/SL-CameraDepthTexture.html).  Next, on line 46, we multiply the depth by the length of *r<sub>n</sub>*, which was passed to us by the vertex shader, satisfying the equations discussed above.
+
+We then pass the depth as a new parameter to ``raymarch()``.  In the raymarch loop, we bail out and return a completely transparent color if we march past the value given by the depth buffer (see lines 13-16).  Now, when we check back in Unity, our raymarched objects coexist with normal mesh-based objects as expected:
+
+<div style="max-width:500px;display:block;margin:0 auto;">
+    <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="SimpleInfiniteBlackandtancoonhound"></div>
+</div>
 
 ## Resources
 - [Inigo Quilez's blog](http://www.iquilezles.org/www/index.htm) is in my opinion the seminal resource on Raymarching Distance fields.  His articles discuss advanced raymarching techniques.

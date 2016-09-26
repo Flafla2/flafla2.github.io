@@ -1,3 +1,5 @@
+code {padding: 1px 4px;}
+pre > code {padding: 0;}
 .highlight, code  { background: #ffffff; border: 1px solid #a9a9a9; border-radius: 5px;}
 .highlight {padding: 5px; margin-bottom: 1em; max-height: 35.7em; overflow: scroll;}
 .highlight code {border: 0 !important; background: clear !important; border-radius: 0 !important;}

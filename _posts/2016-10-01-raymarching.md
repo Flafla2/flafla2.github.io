@@ -11,6 +11,8 @@ tag: tech_writeup
 </p>
 
 This article will first discuss the fundamental concepts and theory of raymarching.  Then it will show how to implement a basic raymarcher in the Unity game engine.  Finally it will show how to integrate raymarching practically in a real Unity game by allowing raymarched objects to be occluded by normal Unity GameObjects.
+
+You can find a complete reference implementation at [this Github Repository](https://github.com/Flafla2/Generic-Raymarch-Unity).
 <!--break-->
 
 ## Table of Contents
@@ -21,7 +23,7 @@ This article will first discuss the fundamental concepts and theory of raymarchi
 
 ## Introduction to Raymarching
 
-Raymarching is similar to traditional raytracing in that a ray is cast into the scene for each pixel.  In a raytracer, you are given a set of equations that determines the intersection of a ray and the objects you are rendering.  This way it is possible to get a fully accurate representation of what objects the ray intersects (that is, the objects that the camera sees).  It is also possible to render nonpolygonal objects such as spheres because you only need to know the sphere / ray intersection formula (for example).  However, raytracing is very expensive, especially when you have many objects and complex lighting.  Additionally you can not raytrace through a volumetric material, such as clouds or water.  Therefore raytracing is largely inadequate for realtime applications.
+Raymarching is similar to traditional raytracing in that a ray is cast into the scene for each pixel.  In a raytracer, you are given a set of equations that determine the intersection of a ray and the objects you are rendering.  This way it is possible to find which objects the ray intersects (that is, the objects that the camera sees).  It is also possible to render nonpolygonal objects such as spheres because you only need to know the sphere / ray intersection formula (for example).  However, raytracing is very expensive, especially when you have many objects and complex lighting.  Additionally you can not raytrace through volumetric materials, such as clouds and water.  Therefore raytracing is largely inadequate for realtime applications.
 
 <p style="text-align: center">
     <img src="/img/2016-10-01-raymarching/figure1.png" style="text-align: center; width: 100%; max-width: 450px;" /><br />
@@ -37,7 +39,7 @@ Raymarching takes an alternative approach to the ray / object intersection probl
 
 ### Enter distance fields
 
-A *fixed interval* raymarcher (that is, the a raymarcher where the distance between each sample along the ray is the same) is sufficient for many applications such as volumetric or transparent surfaces.  However, for opaque objects we can introduce another optimization.  This optimization calls for the use of *signed distance fields*.  **A *distance field* is a function that takes in a point as input and returns the shortest distance from that point to the surface any object in the scene.**  A *signed* distance field additionally returns a negative number if the input point is inside of an object.  Distance fields are great because they allow us to limit how often we need to sample when marching along the ray.  See the example below:
+A *fixed interval* raymarcher such as the one shown in Figure 2 is sufficient for many applications such as volumetric or transparent surfaces.  However, for opaque objects we can introduce another optimization.  This optimization calls for the use of *signed distance fields*.  **A *distance field* is a function that takes in a point as input and returns the shortest distance from that point to the surface any object in the scene.**  A *signed* distance field additionally returns a negative number if the input point is inside of an object.  Distance fields are great because they allow us to limit how often we need to sample when marching along the ray.  See the example below:
 
 <p style="text-align: center">
     <img src="/img/2016-10-01-raymarching/figure3.png" style="text-align: center; width: 100%; max-width: 450px;" /><br />
@@ -177,7 +179,7 @@ It's worth noting a couple of things about this function.  First, it returns a `
 
 To pass this matrix to the shader, we need to make a slight modification to our Image Effect Script:
 
-{% highlight csharp lineno %}
+{% highlight csharp linenos %}
 [ImageEffectOpaque]
 void OnRenderImage(RenderTexture source, RenderTexture destination)
 {
@@ -534,7 +536,7 @@ We use the [Lambertian Reflectance Model](https://en.wikipedia.org/wiki/Lambert%
 
 ## Interacting With Mesh-Based Objects
 
-So now you have constructed a bunch of objects using distance fields that are mind-bendingly detailed and beautiful and you are finally ready to integrate them into your Unity project.  However, you run into a major problem very quickly: Mesh-based objects and raymarched objects can't interact with or touch each other!  In fact, the raymarched objects *always* float on top of everything else, because our raymarcher doesn't take depth into account.  The video below illustrates this:
+So now you have constructed a bunch of objects using distance fields and you are ready to integrate them into your Unity project.  However, you run into a major problem very quickly: Mesh-based objects and raymarched objects can't interact with or touch each other!  In fact, the raymarched objects *always* float on top of everything else, because our raymarcher doesn't take depth into account.  The video below illustrates this:
 
 <div style="max-width:500px;display:block;margin:0 auto;">
     <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="GrossThoroughEasternnewt"></div>
@@ -662,7 +664,7 @@ Now that we have our raymarcher up and running, we can start to build scenes!  A
 
 Just like with mesh-based 3D models, you can perform transformations on an object using a [model matrix](https://solarianprogrammer.com/2013/05/22/opengl-101-matrices-projection-view-model/).  In our case however, we need to compute the *inverse* of the model matrix since we aren't actually transforming the model itself.  Rather, we are transforming the point that is used to sample our distance field.
 
-To implement these transformations, we first build the model matrix in the image effect script:
+To implement these transformations, we first build the model matrix in the image effect script and pass the inverse to the shader:
 
 {% highlight csharp linenos %}
 [ImageEffectOpaque]
@@ -698,7 +700,7 @@ float map(float3 p) {
 }
 {% endhighlight %}
 
-You'll notice that the torus now moves nicely back and forth in Unity:
+You'll notice that the torus now moves nicely back and forth in Unity (enter play mode to see the animation):
 
 <div style="max-width:500px;display:block;margin:0 auto;">
     <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="TalkativeHopefulHowlermonkey"></div>
@@ -854,9 +856,16 @@ fixed4 raymarch(float3 ro, float3 rd, float s) {
 
 {% endhighlight %}
 
+Now, we have 3 objects with different colors:
+
+<p style="text-align: center">
+    <img src="/img/2016-10-01-raymarching/materials.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
+    <i>Raymarching with multiple materials</i>
+</p>
+
 ### Performance Testing
 
-It is often necessary to test the performance of your raymarch shader - that is, how often ``map()`` is called per frame.  We can create a nice visualization of this by modifying ``raymarch()`` to output the number of samples per frame.  To do this, we map the number of samples in a given pixel to a Color Ramp, as in the previous section.
+It is often necessary to test the performance of your raymarch shader.  The best way to do this is to see how often ``map()`` is called per frame.  We can create a nice visualization of this by modifying ``raymarch()`` to output the number of samples per frame.  Simply map the number of samples in a given pixel to a Color Ramp, as in the previous section.
 
 {% highlight c linenos %}
 fixed4 raymarch(float3 ro, float3 rd, float s) {
@@ -952,7 +961,7 @@ fixed4 raymarch(float3 ro, float3 rd, float s) {
 
 ## Closing Remarks
 
-I hope that this article has given a fairly robust introduction to Distance Field Raymarching.  If you are interested in learning more, I would suggest looking at examples on [Shadertoy](https://www.shadertoy.com) and at the resources referenced below.  Much of the techniques used in Distance Field Raymarching are not formally documented, so it is up to you to find them.  From a theoretical perspective, I haven't touched on a whole bunch of interesting topics relating to raymarching including [shadows](http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm), ambient occlusion, [complex domain operations](http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm), complex procedural texturing techniques, etc.  I suggest you begin to do your own research on these tricks!
+I hope that this article has given a fairly robust introduction to Distance Field Raymarching.  Once again you can find a complete reference implementation at [this Github Repository](https://github.com/Flafla2/Generic-Raymarch-Unity).  If you are interested in learning more, I would suggest looking at examples on [Shadertoy](https://www.shadertoy.com) and at the resources referenced below.  Much of the techniques used in Distance Field Raymarching are not formally documented, so it is up to you to find them.  From a theoretical perspective, I haven't touched on a whole bunch of interesting topics relating to raymarching including [shadows](http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm), ambient occlusion, [complex domain operations](http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm), complex procedural texturing techniques, etc.  I suggest you begin to do your own research on these tricks!
 
 ## References
 - [Inigo Quilez's blog](http://www.iquilezles.org/www/index.htm) is in my opinion the seminal resource on Raymarching Distance fields.  His articles discuss advanced raymarching techniques.

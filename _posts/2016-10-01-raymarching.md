@@ -6,7 +6,7 @@ tag: tech_writeup
 *Raymarching* is a fairly new technique used to render realtime scenes.  The technique is particularly interesting because it is entirely computed in a screen-space shader.  In other words, no mesh data is provided to the renderer and the scene is drawn on a single quad that covers the camera's field of vision.  Objects in the scene are defined by an analytic equation that describes the shortest distance between a point and the surface of any object in the scene (hence the full name *Raymarching Distance Fields*).  It turns out that with only this information you can compose some strikingly complicated and beautiful scenes.  Further, because you aren't using polygonal meshes (and are instead using mathematical equations) it is possible to define perfectly smooth surfaces, unlike in a traditional renderer.
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/snail.png" style="text-align: center; width: 100%; max-width: 350px;" /><br />
+    <img src="/img/2016-10-01-raymarching/snail.png" style="text-align: center; width: 100%; max-width: 350px;" /><br />
     <i><a href="https://www.shadertoy.com/view/ld3Gz2">Snail</a> by Inigo Quilez was created entirely using raymarching.  You can find more examples of raymarched scenes on <a href="https://www.shadertoy.com">Shadertoy</a>.</i>
 </p>
 
@@ -24,14 +24,14 @@ This article will first discuss the fundamental concepts and theory of raymarchi
 Raymarching is similar to traditional raytracing in that a ray is cast into the scene for each pixel.  In a raytracer, you are given a set of equations that determines the intersection of a ray and the objects you are rendering.  This way it is possible to get a fully accurate representation of what objects the ray intersects (that is, the objects that the camera sees).  It is also possible to render nonpolygonal objects such as spheres because you only need to know the sphere / ray intersection formula (for example).  However, raytracing is very expensive, especially when you have many objects and complex lighting.  Additionally you can not raytrace through a volumetric material, such as clouds or water.  Therefore raytracing is largely inadequate for realtime applications.
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/figure1.png" style="text-align: center; width: 100%; max-width: 450px;" /><br />
+    <img src="/img/2016-10-01-raymarching/figure1.png" style="text-align: center; width: 100%; max-width: 450px;" /><br />
     <i>Figure 1: Simplified representation of a raytracer.  The thick black line is an example ray cast to render a pixel from the camera.</i>
 </p>
 
 Raymarching takes an alternative approach to the ray / object intersection problem.  Raymarching does not try to directly calculate this intersection analytically.  Instead, **in raymarching we "march" a point along the ray until we find that the point intersects an object**.  It turns out that sampling this point along the ray is a relatively simple and inexpensive operation, and much more practical in realtime.  As you can see in figure 2, this method is less accurate than raytracing (if you look closely the intersection point is slightly off).  For games however it is more than adequate, and is a great compromise between the efficiency of polygonal rendering and the accuracy of traditional raytracing.
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/figure2.png" style="text-align: center; width: 100%; max-width: 450px;" /><br />
+    <img src="/img/2016-10-01-raymarching/figure2.png" style="text-align: center; width: 100%; max-width: 450px;" /><br />
     <i>Figure 2: Basic implementation of a raymarcher with a fixed marching interval.  The red dots represent each sample point.</i>
 </p>
 
@@ -40,7 +40,7 @@ Raymarching takes an alternative approach to the ray / object intersection probl
 A *fixed interval* raymarcher (that is, the a raymarcher where the distance between each sample along the ray is the same) is sufficient for many applications such as volumetric or transparent surfaces.  However, for opaque objects we can introduce another optimization.  This optimization calls for the use of *signed distance fields*.  **A *distance field* is a function that takes in a point as input and returns the shortest distance from that point to the surface any object in the scene.**  A *signed* distance field additionally returns a negative number if the input point is inside of an object.  Distance fields are great because they allow us to limit how often we need to sample when marching along the ray.  See the example below:
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/figure3.png" style="text-align: center; width: 100%; max-width: 450px;" /><br />
+    <img src="/img/2016-10-01-raymarching/figure3.png" style="text-align: center; width: 100%; max-width: 450px;" /><br />
     <i>Figure 3: Visualization of a raymarcher using signed distance fields.  The red dots represent each sample point.  Each blue circle represents the area that is guaranteed to not contain any objects (because they are within the results of the distance field).  The dashed green lines represent the true shortest vector between each sample point and the scene.</i>
 </p>
 
@@ -115,7 +115,7 @@ To use this script, attach it to a camera and drag an image effect shader onto t
 The first step in actually implementing a raymarcher is to calculate the ray that we will be using for each pixel.  We also want these rays to match up with the Unity render settings (such as the camera's postion, rotation, FOV, etc).
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/figure4.png" style="width: 100%; max-width: 300px;" /><br />
+    <img src="/img/2016-10-01-raymarching/figure4.png" style="width: 100%; max-width: 300px;" /><br />
     <i>Figure 4: A visualization of the rays sent out from the camera</i>
 </p>
 
@@ -123,7 +123,7 @@ There are many ways of doing this, but I have chosen to use the following proced
 
 1. Compute an array of four vectors that make up [Camera View Frustum](https://docs.unity3d.com/Manual/UnderstandingFrustum.html).  These four vectors can be thought of as the "corners" of the view frustum:
     <p style="text-align: center">
-      <img src="/img/2016-5-30-raymarching/viewfrustum.png" style="width: 100%; max-width: 300px;" /><br />
+      <img src="/img/2016-10-01-raymarching/viewfrustum.png" style="width: 100%; max-width: 300px;" /><br />
       <i>The four view frustum corners that are later passed to the shader</i>
     </p>
 2. When rendering our raymarcher as an image effect shader, use our own custom replacement for [Graphics.Blit()](https://docs.unity3d.com/ScriptReference/Graphics.Blit.html).  Graphics.Blit essentially renders a quad over the entire screen, and this quad renders with the image effect shader.  We will add to this by, for each vertex, *passing the corresponding indices in the array we created in step 1*.  Now, the vertex shader is aware of the rays to cast at each corner of the screen!
@@ -528,7 +528,7 @@ fixed4 raymarch(float3 ro, float3 rd) {
 We use the [Lambertian Reflectance Model](https://en.wikipedia.org/wiki/Lambert%27s_cosine_law) above on lines 18-20, but you could use any [BDRF](https://en.wikipedia.org/wiki/Bidirectional_reflectance_distribution_function) that you want (just like with normal 3D models!).  Back in the Unity editor, assign the script's "Sun Light" attribute to a directional light in the scene, and you will find a very nicely lit torus indeed:
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/littorus.png" style="width: 100%; max-width: 300px;" /><br />
+    <img src="/img/2016-10-01-raymarching/littorus.png" style="width: 100%; max-width: 300px;" /><br />
     <i>Our torus with lambertian lighting</i>
 </p>
 
@@ -548,7 +548,7 @@ To fix this problem, we need to find the distance along each ray at which the cl
 To find this distance, we need to take advantage of the depth buffer.  The depth buffer is accessible to all image effects shaders and stores the *eyespace* depth of the closest object in the scene for each pixel.  Refer to figure 5 below for more context.
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/figure5.png" style="width: 100%; max-width: 600px;" /><br />
+    <img src="/img/2016-10-01-raymarching/figure5.png" style="width: 100%; max-width: 600px;" /><br />
     <i>Figure 5: Diagram of the measurements we are interested in when calculating depth.  The red line is the ray for some arbitrary pixel.</i>
 </p>
 
@@ -662,7 +662,7 @@ Now that we have our raymarcher up and running, we can start to build scenes!  A
 
 Just like with mesh-based 3D models, you can perform transformations on an object using a [model matrix](https://solarianprogrammer.com/2013/05/22/opengl-101-matrices-projection-view-model/).  In our case however, we need to compute the *inverse* of the model matrix since we aren't actually transforming the model itself.  Rather, we are transforming the point that is used to sample our distance field.
 
-To implment these transformations, we first build the model matrix in the image effect script:
+To implement these transformations, we first build the model matrix in the image effect script:
 
 {% highlight csharp linenos %}
 [ImageEffectOpaque]
@@ -764,7 +764,7 @@ float map(float3 p) {
 The result of this in Unity is shown below:
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/combine-operations.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
+    <img src="/img/2016-10-01-raymarching/combine-operations.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
     <i>From Left to Right: Union, Subtraction, and Intersection Operators</i>
 </p>
 
@@ -773,7 +773,7 @@ The result of this in Unity is shown below:
 You can extend your distance field function to return material data as well.  Simply have your ``map()`` function return the relevant material information for each object - in the example below, we pull from a *color ramp* texture to pick which color each object is.  We also need to modify the ``opU()`` function introduced above to support multiple materials.
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/color_ramp.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
+    <img src="/img/2016-10-01-raymarching/color_ramp.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
     <i>The Color Ramp I am using.</i>
 </p>
 
@@ -886,7 +886,7 @@ fixed4 raymarch(float3 ro, float3 rd, float s) {
 This is what the visualization looks like in Unity:
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/perftest.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
+    <img src="/img/2016-10-01-raymarching/perftest.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
     <i>A performance visualization, with blue = lower step count and red = high step count.</i>
 </p>
 
@@ -923,7 +923,7 @@ fixed4 raymarch(float3 ro, float3 rd, float s) {
 Here's our heatmap after the above optimization:
 
 <p style="text-align: center">
-    <img src="/img/2016-5-30-raymarching/perftest2.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
+    <img src="/img/2016-10-01-raymarching/perftest2.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
     <i>Another performance visualization after the above optimization, with blue = lower step count and red = high step count.</i>
 </p>
 

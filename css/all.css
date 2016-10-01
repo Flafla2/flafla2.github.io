@@ -31,6 +31,7 @@ ul {
 
 ul ul {
 	list-style-type: circle;
+	padding-bottom: 0;
 }
 
 ol {
@@ -82,6 +83,16 @@ blockquote p {
 
 .content a > h2 {
 	color: black;
+}
+
+#markdown-toc ul {
+	margin-left: 3em;
+	font-size: 0.9em;
+}
+
+ul#markdown-toc {
+	margin-left: 3em;
+	font-size: 1em;
 }
 
 a:link, a:visited, a:hover {

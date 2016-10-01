@@ -13,6 +13,12 @@ tag: tech_writeup
 This article will first discuss the fundamental concepts and theory of raymarching.  Then it will show how to implement a basic raymarcher in the Unity game engine.  Finally it will show how to integrate raymarching practically in a real Unity game by allowing raymarched objects to be occluded by normal Unity GameObjects.
 <!--break-->
 
+## Table of Contents
+{:.no_toc}
+
+* Table of Contents
+{:toc}
+
 ## Introduction to Raymarching
 
 Raymarching is similar to traditional raytracing in that a ray is cast into the scene for each pixel.  In a raytracer, you are given a set of equations that determines the intersection of a ray and the objects you are rendering.  This way it is possible to get a fully accurate representation of what objects the ray intersects (that is, the objects that the camera sees).  It is also possible to render nonpolygonal objects such as spheres because you only need to know the sphere / ray intersection formula (for example).  However, raytracing is very expensive, especially when you have many objects and complex lighting.  Additionally you can not raytrace through a volumetric material, such as clouds or water.  Therefore raytracing is largely inadequate for realtime applications.
@@ -369,7 +375,7 @@ fixed4 raymarch(float3 ro, float3 rd) {
         float d = map(p);       // Sample of distance field (see map())
 
         // If the sample <= 0, we have hit something (see map()).
-        if (d < 0.01) {
+        if (d < 0.001) {
             // Simply return a gray color if we have hit an object
             // We will deal with lighting later.
             ret = fixed4(0.5, 0.5, 0.5, 1);
@@ -501,7 +507,7 @@ fixed4 raymarch(float3 ro, float3 rd) {
         float d = map(p);       // Sample of distance field (see map())
 
         // If the sample <= 0, we have hit something (see map()).
-        if (d < 0.01) {
+        if (d < 0.001) {
             // Lambertian Lighting
             float3 n = calcNormal(p);
             ret = fixed4(dot(-_LightDir.xyz, n).rrr, 1);
@@ -528,7 +534,7 @@ We use the [Lambertian Reflectance Model](https://en.wikipedia.org/wiki/Lambert%
 
 ## Interacting With Mesh-Based Objects
 
-So now you have constructed a bunch of objects using distance fields that are incredibly complicated and you are finally ready to integrate them into your Unity project.  However, you run into a major problem very quickly: Mesh-based objects and raymarched objects can't interact or touch each other!  In fact, the raymarched objects *always* float on top of everything else, because our raymarcher doesn't take depth into account.  The video below illustrates this:
+So now you have constructed a bunch of objects using distance fields that are mind-bendingly detailed and beautiful and you are finally ready to integrate them into your Unity project.  However, you run into a major problem very quickly: Mesh-based objects and raymarched objects can't interact with or touch each other!  In fact, the raymarched objects *always* float on top of everything else, because our raymarcher doesn't take depth into account.  The video below illustrates this:
 
 <div style="max-width:500px;display:block;margin:0 auto;">
     <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="GrossThoroughEasternnewt"></div>
@@ -648,6 +654,309 @@ We then pass the depth as a new parameter to ``raymarch()``.  In the raymarch lo
     <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="SimpleInfiniteBlackandtancoonhound"></div>
 </div>
 
-## Resources
+## Fun with Distance Fields
+
+Now that we have our raymarcher up and running, we can start to build scenes!  As I said earlier, this is a very deep rabbit hole and it is beyond the scope of this article to explore distance field construction entirely.  However, below are some simple techniques that I have tried out.  I recommend you check out some examples on [Shadertoy](https://www.shadertoy.com) to spark your imagination.  In any case, below is a small sampler of some of the things that you can do:
+
+### Basic Transformations
+
+Just like with mesh-based 3D models, you can perform transformations on an object using a [model matrix](https://solarianprogrammer.com/2013/05/22/opengl-101-matrices-projection-view-model/).  In our case however, we need to compute the *inverse* of the model matrix since we aren't actually transforming the model itself.  Rather, we are transforming the point that is used to sample our distance field.
+
+To implment these transformations, we first build the model matrix in the image effect script:
+
+{% highlight csharp linenos %}
+[ImageEffectOpaque]
+void OnRenderImage(RenderTexture source, RenderTexture destination)
+{
+    // ...
+    
+    // Construct a Model Matrix for the Torus
+    Matrix4x4 MatTorus = Matrix4x4.TRS(
+        Vector3.right * Mathf.Sin(Time.time) * 5, 
+        Quaternion.identity,
+        Vector3.one);
+    MatTorus *= Matrix4x4.TRS(
+        Vector3.zero, 
+        Quaternion.Euler(new Vector3(0, 0, (Time.time * 200) % 360)), 
+        Vector3.one);
+    // Send the torus matrix to our shader
+    EffectMaterial.SetMatrix("_MatTorus_InvModel", MatTorus.inverse);
+
+    // ...
+}
+{% endhighlight %}
+
+Note how you can use ``Time.time`` to animate objects.  You can also use any variables from your script (including, concievably, Unity's animation system) to inform these transformations.  Next, we receive the Model Matrix in our shader and apply it to the torus:
+
+{% highlight c linenos %}
+uniform float4x4 _MatTorus_InvModel;
+
+float map(float3 p) {
+    float4 q = mul(_MatTorus_InvModel, float4(p,1));
+    
+    return sdTorus(q.xyz, float2(1, 0.2));
+}
+{% endhighlight %}
+
+You'll notice that the torus now moves nicely back and forth in Unity:
+
+<div style="max-width:500px;display:block;margin:0 auto;">
+    <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="TalkativeHopefulHowlermonkey"></div>
+</div>
+
+### Combining Objects
+
+You can combine objects as well to create more complex forms.  To do this, you simply need to take advantage of some simple distance field combine operations: ``opU()`` (Union), ``opI()`` (Intersection), and ``opS()`` (Subtraction).  Below is an example distance field function that demonstrates the outcomes of these operations:
+
+{% highlight c linenos %}
+// Box
+// b: size of box in x/y/z
+// Adapted from: http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float sdBox(float3 p, float3 b)
+{
+    float3 d = abs(p) - b;
+    return min(max(d.x, max(d.y, d.z)), 0.0) +
+        length(max(d, 0.0));
+}
+
+// Union
+// Adapted from: http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float opU( float d1, float d2 )
+{
+    return min(d1,d2);
+}
+
+// Subtraction
+// Adapted from: http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float opS( float d1, float d2 )
+{
+    return max(-d1,d2);
+}
+
+// Intersection
+// Adapted from: http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float opI( float d1, float d2 )
+{
+    return max(d1,d2);
+}
+
+float map(float3 p) {
+    float union_box = opU(
+        sdBox(p - float3(-4.5, 0.5, 0), float3(1,1,1)), 
+        sdBox(p - float3(-3.5, -0.5, 0), float3(1,1,1))
+    );
+    float subtr_box = opS(
+        sdBox(p - float3(-0.5, 0.5, 0), float3(1,1,1.01)), 
+        sdBox(p - float3(0.5, -0.5, 0), float3(1,1,1))
+    );
+    float insec_box = opI(
+        sdBox(p - float3(3.5, 0.5, 0), float3(1,1,1)), 
+        sdBox(p - float3(4.5, -0.5, 0), float3(1,1,1))
+    );
+
+    float ret = opU(union_box, subtr_box);
+    ret = opU(ret, insec_box);
+    
+    return ret;
+}
+{% endhighlight %}
+
+The result of this in Unity is shown below:
+
+<p style="text-align: center">
+    <img src="/img/2016-5-30-raymarching/combine-operations.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
+    <i>From Left to Right: Union, Subtraction, and Intersection Operators</i>
+</p>
+
+### Multiple Materials
+
+You can extend your distance field function to return material data as well.  Simply have your ``map()`` function return the relevant material information for each object - in the example below, we pull from a *color ramp* texture to pick which color each object is.  We also need to modify the ``opU()`` function introduced above to support multiple materials.
+
+<p style="text-align: center">
+    <img src="/img/2016-5-30-raymarching/color_ramp.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
+    <i>The Color Ramp I am using.</i>
+</p>
+
+As always, we need to pass the color ramp to our shader through the image effect script:
+
+{% highlight csharp linenos %}
+[SerializeField]
+private Texture2D _ColorRamp;
+
+// ...
+
+[ImageEffectOpaque]
+void OnRenderImage(RenderTexture source, RenderTexture destination)
+{
+    // ...
+
+    EffectMaterial.SetTexture("_ColorRamp", _ColorRamp);
+
+    // ...
+}
+{% endhighlight %}
+
+Next we can use the new ``_ColorRamp`` uniform in the shader.  As mentioned, we need to modify ``map()`` as well as the lighting calculation in ``raymarch()`` to leverage these different material properties.
+
+{% highlight c linenos %}
+
+uniform sampler2D _ColorRamp;
+
+// ...
+
+// Union (with material data)
+float2 opU( float2 d1, float2 d2 )
+{
+    return (d1.x < d2.x) ? d1 : d2;
+}
+
+// Notice how map() now returns a float2
+// \return.x: Distance field value
+// \return.y: Color of closest object (0 - 1)
+float2 map(float3 p) {
+    float2 d_torus = float2(sdTorus(p, float2(1, 0.2)), 0.5);
+    float2 d_box = float2(sdBox(p - float3(-3,0,0), float3(0.75,0.5,0.5)), 0.25);
+    float2 d_sphere = float2(sdSphere(p - float3(3,0,0), 1), 0.75);
+
+    float2 ret = opU(d_torus, d_box);
+    ret = opU(ret, d_sphere);
+    
+    return ret;
+}
+
+fixed4 raymarch(float3 ro, float3 rd, float s) {
+    fixed4 ret = fixed4(0,0,0,0);
+
+    const int maxstep = 64;
+    float t = 0; // current distance traveled along ray
+    for (int i = 0; i < maxstep; ++i) {
+        // ...
+
+        float3 p = ro + rd * t; // World space position of sample
+        float2 d = map(p);      // Sample of distance field (see map())
+                                // d.x: distance field output
+                                // d.y: material data
+
+        // If the sample <= 0, we have hit something (see map()).
+        if (d.x < 0.001) {
+            float3 n = calcNormal(p);
+            float light = dot(-_LightDir.xyz, n);
+            // Use y value given by map() to choose a color from our Color Ramp
+            ret = fixed4(tex2D(_ColorRamp, float2(d.y,0)).xyz * light, 1);
+            break;
+        }
+
+        // ...
+    }
+
+    return ret;
+}
+
+{% endhighlight %}
+
+### Performance Testing
+
+It is often necessary to test the performance of your raymarch shader - that is, how often ``map()`` is called per frame.  We can create a nice visualization of this by modifying ``raymarch()`` to output the number of samples per frame.  To do this, we map the number of samples in a given pixel to a Color Ramp, as in the previous section.
+
+{% highlight c linenos %}
+fixed4 raymarch(float3 ro, float3 rd, float s) {
+    const int maxstep = 64;
+    float t = 0; // current distance traveled along ray
+
+    for (int i = 0; i < maxstep; ++i) {
+        float3 p = ro + rd * t; // World space position of sample
+        float2 d = map(p);      // Sample of distance field (see map())
+
+        // If the sample <= 0, we have hit something (see map()).
+        if (d.x < 0.001) {
+            // Simply return the number of steps taken, mapped to a color ramp.
+            float perf = (float)i / maxstep;
+            return fixed4(tex2D(_ColorRamp, float2(perf, 0)).xyz, 1);
+        }
+
+        t += d;
+    }
+
+    // By this point the loop guard (i < maxstep) is false.  Therefore
+    // we have reached maxstep steps.
+    return fixed4(tex2D(_ColorRamp, float2(1, 0)).xyz, 1);
+}
+{% endhighlight %}
+
+This is what the visualization looks like in Unity:
+
+<p style="text-align: center">
+    <img src="/img/2016-5-30-raymarching/perftest.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
+    <i>A performance visualization, with blue = lower step count and red = high step count.</i>
+</p>
+
+The above visualization highlights a major problem in our algorithm.  The pixels that do not show any raymarched objects (most pixels fall under this category) display the maximum step size!  This makes sense: the rays cast from these pixels never hit anything, so they march onward forever.  To remedy this performance issue, we can add a maximum draw distance like so:
+
+{% highlight c linenos %}
+fixed4 raymarch(float3 ro, float3 rd, float s) {
+    const int maxstep = 64;
+    const float drawdist = 40; // draw distance in unity units
+
+    float t = 0; // current distance traveled along ray
+
+    for (int i = 0; i < maxstep; ++i) {
+        float3 p = ro + rd * t; // World space position of sample
+        float2 d = map(p);      // Sample of distance field (see map())
+
+        // If the sample <= 0, we have hit something (see map()).
+        // If t > drawdist, we can safely bail because we have reached the max draw distance
+        if (d.x < 0.001 || t > drawdist) {
+            // Simply return the number of steps taken, mapped to a color ramp.
+            float perf = (float)i / maxstep;
+            return fixed4(tex2D(_ColorRamp, float2(perf, 0)).xyz, 1);
+        }
+
+        t += d;
+    }
+
+    // By this point the loop guard (i < maxstep) is false.  Therefore
+    // we have reached maxstep steps.
+    return fixed4(tex2D(_ColorRamp, float2(1, 0)).xyz, 1);
+}
+{% endhighlight %}
+
+Here's our heatmap after the above optimization:
+
+<p style="text-align: center">
+    <img src="/img/2016-5-30-raymarching/perftest2.png" style="text-align: center; width: 100%; max-width: 500px;" /><br />
+    <i>Another performance visualization after the above optimization, with blue = lower step count and red = high step count.</i>
+</p>
+
+Much better!  We can add this optimization to a normal raymarch loop by adding the draw distance check to the depth buffer culling check:
+
+{% highlight c linenos %}
+fixed4 raymarch(float3 ro, float3 rd, float s) {
+    fixed4 ret = fixed4(0,0,0,0);
+
+    const int maxstep = 64;
+    const float drawdist = 40; // draw distance in unity units
+
+    float t = 0; // current distance traveled along ray
+    for (int i = 0; i < maxstep; ++i) {
+        if (t >= s || t > drawdist) { // check draw distance in additon to depth
+            ret = fixed4(0, 0, 0, 0);
+            break;
+        }
+
+        // ...
+    }
+
+    return ret;
+}
+{% endhighlight %}
+
+## Closing Remarks
+
+I hope that this article has given a fairly robust introduction to Distance Field Raymarching.  If you are interested in learning more, I would suggest looking at examples on [Shadertoy](https://www.shadertoy.com) and at the resources referenced below.  Much of the techniques used in Distance Field Raymarching are not formally documented, so it is up to you to find them.  From a theoretical perspective, I haven't touched on a whole bunch of interesting topics relating to raymarching including [shadows](http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm), ambient occlusion, [complex domain operations](http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm), complex procedural texturing techniques, etc.  I suggest you begin to do your own research on these tricks!
+
+## References
 - [Inigo Quilez's blog](http://www.iquilezles.org/www/index.htm) is in my opinion the seminal resource on Raymarching Distance fields.  His articles discuss advanced raymarching techniques.
+  - [This article in particular](http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm) is a very useful reference for Distance Field functions.
+- [This Article by 9bit Science](http://9bitscience.blogspot.com/2013/07/raymarching-distance-fields_14.html) is a great writeup on the theory behind raymarching.
+- [Shadertoy](https://www.shadertoy.com) is a web-based shader viewing site and hosts many striking examples of distance field raymarching (as well as other applications of raymarching such as volumetric lighting).  Every shader has full source code access, so it's a great way to learn about different techniques.
 - [This Gamedev Stackexchange discussion](http://gamedev.stackexchange.com/questions/67719/how-do-raymarch-shaders-work) gives some interesting background into how raymarching shaders work fundamentally, and offers some alternative usecases of raymarching such as volumetric lighting.

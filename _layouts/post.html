@@ -2,7 +2,16 @@
 
 <div class="article" style="border-bottom: none;">
 	<h1>{{ page.title }}</h1>
-	<p class="postinfo">Posted on {{ page.date | date_to_long_string }} by {{ page.author }}</p>
+	<p class="postinfo">
+	{% if page.tag != null %}
+	{% for cur_tag in site.collections[1].docs %}
+	{% if page.tag == cur_tag.shortname %}
+	<a href="{{ cur_tag.url }}"><span class="post_tag">{{ cur_tag.title }}</span></a>
+	{% endif %}
+	{% endfor %}
+	{% endif %}
+	Posted on {{ page.date | date_to_long_string }} by {{ page.author }}
+	</p>
 	{{ content }}
 	<br />
 

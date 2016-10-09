@@ -16,9 +16,6 @@ licence.
     <i>Myself demoing the system in the HTC Vive</i>
 </p>
 
-I intend on writing another article in the near future detailing some of the challenges that I ran into during the production
-of this system.  Look out for that soon!
-
 <!--break-->
 
 This system solves a number of problems:

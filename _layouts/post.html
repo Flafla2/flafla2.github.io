@@ -10,7 +10,11 @@
 	{% endif %}
 	{% endfor %}
 	{% endif %}
+	{% if page.project-posted-date != null %}
+	Completed on {{ page.date | date_to_long_string }}, Posted on {{ page.project-posted-date }} by {{ page.author }}
+	{% else %}
 	Posted on {{ page.date | date_to_long_string }} by {{ page.author }}
+	{% endif %}
 	</p>
 	{{ content }}
 	<br />

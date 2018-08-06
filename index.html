@@ -3,7 +3,20 @@ title: adrian's soapbox
 ---
 
 {% include header.html %}
-
+			<h1>Recommended Posts</h1>
+			<p><i>New here?  Check out some of my favorite posts:</i></p>
+			<div class="recommended">
+				{% for rec in site.data.recommended_posts %}
+				<a href="{{ rec.uri }}">
+				<div class="recommendation">
+					<img src="{{ rec.img }}" />
+					<div class="under">
+						<h3>{{ rec.title }}</h3>
+					</div>
+				</div>
+				</a>
+				{% endfor %}
+			</div>
 			{% for post in paginator.posts %}
 			{% if post.visible == true %}
 			<div class="article">

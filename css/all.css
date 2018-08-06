@@ -156,6 +156,56 @@ a:active {
 	text-align: center;
 }
 
+/*******RECOMMENDED POSTS*********/
+
+.content > h1, .content > p {
+	margin-left: 10px;
+}
+
+.recommended {
+	display: block;
+	border-bottom: 2px solid #AAAAAA;
+	margin: 0 0 5px 0;
+	padding: 0 10px 0 10px;
+	height: 310px;
+	overflow-y: hidden;
+	overflow-x: scroll;
+	white-space: nowrap;
+}
+
+.recommendation {
+	display: inline-block;
+	width: 280px;
+	height: 290px;
+	white-space: normal;
+	vertical-align: top;
+	border: 1px solid #AAA;
+	border-radius: 10px;
+	padding: 5px;
+}
+
+.recommendation h3 {
+	color: black;
+}
+
+.recommendation:hover h3 {
+	color: #666;
+}
+
+.recommendation img {
+	height: 200px;
+	max-width: 100%;
+	object-fit: contain;
+	margin: 0 auto;
+}
+
+.recommendation .under {
+	padding-top: 10px;
+	border-top: 1px solid #AAA;
+}
+
+
+
 /*******GFYCAT RESPONSIVE DESIGN FIX*********/
 .media-flex {
     position: relative;

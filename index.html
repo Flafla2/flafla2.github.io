@@ -48,16 +48,17 @@ title: adrian's soapbox
 			{% endfor %}
 
 			<p id="pagination">
-				{% for page in (1..paginator.total_pages) %}
+				{% for page1 in (2..paginator.total_pages) %}
+					{% assign page = page1 | minus:1 %}
 					{% if page == paginator.page %}
 						{{ page }}
 					{% elsif page == 1 %}
-						<a href="{{ '/index.html' | prepend: site.baseurl | replace: '//', '/' }}">1</a>
+						<a href="{{ '/index.html' | prepend: '/' | prepend: site.url | replace: '//', '/' }}">1</a>
 					{% else %}
-						<a href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', page }}">{{ page }}</a>
+						<a href="{{ site.paginate_path | prepend: '/' | prepend: site.url | replace: '//', '/' | replace: ':num', page }}">{{ page }}</a>
 					{% endif %}
 
-					{% if page != paginator.total_pages %}
+					{% if page1 != paginator.total_pages %}
 					 | 
 					{% endif %}
 				{% endfor %}

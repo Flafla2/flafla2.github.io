@@ -1,6 +1,7 @@
 paginate: 5
 paginate_path: "page:num"
 gems: [jekyll-paginate]
+url: https://flafla2.github.io
 defaults:
   -
     scope:

@@ -326,7 +326,10 @@ fixed4 frag (v2f i) : SV_Target
 You should see the following visualization back in Unity:
 
 <div style="max-width:500px;display:block;margin:0 auto;">
-    <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="SaltyIckyFiddlercrab"></div>
+    <video width="100%" controls autoplay loop muted preload="none">
+		<source src="/gfycat_old/SaltyIckyFiddlercrab.mp4" type="video/mp4" />
+		[Use a browser with video tag to view]
+	</video>
 </div>
 <p style="text-align: center">
     <i>Visualizing the world-space ray direction of each pixel.  Notice that, for example, when you look up the result is green.  This corresponds to the actual ray direction (0, 1, 0).</i>
@@ -426,7 +429,10 @@ All we are doing here is receiving our ray data from the vertex shader and passi
 Open up Unity again, and behold!  A torus!
 
 <div style="max-width:500px;display:block;margin:0 auto;">
-    <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="WholeWeirdFirefly"></div>
+    <video width="100%" controls autoplay loop muted preload="none">
+		<source src="/gfycat_old/WholeWeirdFirefly.mp4" type="video/mp4" />
+		[Use a browser with video tag to view]
+	</video>
 </div>
 <p style="text-align: center">
     <i>Look mom, no polygons!</i>
@@ -539,7 +545,10 @@ We use the [Lambertian Reflectance Model](https://en.wikipedia.org/wiki/Lambert%
 So now you have constructed a bunch of objects using distance fields and you are ready to integrate them into your Unity project.  However, you run into a major problem very quickly: Mesh-based objects and raymarched objects can't interact with or touch each other!  In fact, the raymarched objects *always* float on top of everything else, because our raymarcher doesn't take depth into account.  The video below illustrates this:
 
 <div style="max-width:500px;display:block;margin:0 auto;">
-    <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="GrossThoroughEasternnewt"></div>
+    <video width="100%" controls autoplay loop muted preload="none">
+		<source src="/gfycat_old/GrossThoroughEasternnewt.mp4" type="video/mp4" />
+		[Use a browser with video tag to view]
+	</video>
 </div>
 <p style="text-align: center">
     <i>My brain hurts...</i>
@@ -653,7 +662,10 @@ On line 45, we access Unity's depth texture using the standard Unity shader unif
 We then pass the depth as a new parameter to ``raymarch()``.  In the raymarch loop, we bail out and return a completely transparent color if we march past the value given by the depth buffer (see lines 13-16).  Now, when we check back in Unity, our raymarched objects coexist with normal mesh-based objects as expected:
 
 <div style="max-width:500px;display:block;margin:0 auto;">
-    <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="SimpleInfiniteBlackandtancoonhound"></div>
+    <video width="100%" controls autoplay loop muted preload="none">
+		<source src="/gfycat_old/SimpleInfiniteBlackandtancoonhound.mp4" type="video/mp4" />
+		[Use a browser with video tag to view]
+	</video>
 </div>
 
 ## Fun with Distance Fields
@@ -703,7 +715,10 @@ float map(float3 p) {
 You'll notice that the torus now moves nicely back and forth in Unity (enter play mode to see the animation):
 
 <div style="max-width:500px;display:block;margin:0 auto;">
-    <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="TalkativeHopefulHowlermonkey"></div>
+    <video width="100%" controls autoplay loop muted preload="none">
+		<source src="/gfycat_old/TalkativeHopefulHowlermonkey.mp4" type="video/mp4" />
+		[Use a browser with video tag to view]
+	</video>
 </div>
 
 ### Combining Objects

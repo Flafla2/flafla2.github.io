@@ -10,7 +10,10 @@ traverse VR environments that are bigger than the play area.  You can check out 
 licence.
 
 <div style="max-width:750px;display:block;margin:0 auto;">
-    <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="HonorableComplexCutworm"></div>
+    <video width="100%" controls autoplay loop muted preload="none">
+		<source src="/gfycat_old/HonorableComplexCutworm.mp4" type="video/mp4" />
+		[Use a browser with video tag to view]
+	</video>
 </div>
 <p style="text-align: center">
     <i>Myself demoing the system in the HTC Vive</i>
@@ -28,7 +31,10 @@ This system solves a number of problems:
    new NavMesh bakes whenever you update the scene.  The above process is illustrated below:
    
    <div style="max-width:750px;display:block;margin:0 auto;">
-      <div class="gfyitem" data-autoplay="true" data-responsive="true" data-id="SorrowfulThriftyAfricanpiedkingfisher"></div>
+      <video width="100%" controls autoplay loop muted preload="none">
+		<source src="/gfycat_old/SorrowfulThriftyAfricanpiedkingfisher.mp4" type="video/mp4" />
+		[Use a browser with video tag to view]
+	</video>
    </div>
   <p style="text-align: center">
       <i>The process of updating the Vive navmesh.</i>

@@ -1,0 +1,16 @@
+{
+"companyName": "DefaultCompany",
+"productName": "Rotation-Vis",
+"productVersion": "1.0",
+"dataUrl": "Rotation-Vis.data.unityweb",
+"wasmCodeUrl": "Rotation-Vis.wasm.code.unityweb",
+"wasmFrameworkUrl": "Rotation-Vis.wasm.framework.unityweb",
+"graphicsAPI": ["WebGL 2.0","WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20",
+"cacheControl": {"default": "must-revalidate"},
+"developmentBuild": false,
+"multithreading": false,
+"unityVersion": "2019.2.5f1"
+}

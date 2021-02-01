@@ -10,6 +10,13 @@
 		color: #e3e3e3;
 		margin: 2em 3em;
 	}
+	button {
+		font-family: Verdana;
+		font-size: 18pt;
+		background-color: #404040;
+		border: solid 3px #a3a3a3;
+		color: #e3e3e3;
+	}
 	#search_form_homepage {
 		overflow:hidden;
 		margin:0 auto;
@@ -59,6 +66,26 @@
 			</li>
 			<li><a href="https://reddit.com/r/globaloffensive">/r/globaloffensive</a></li>
 		</ul>
+	</div>
+	<div class "game" id="utils">
+		<h2>Tools</h2>
+		<script type="text/javascript">
+			function findIP() {
+				var request = new XMLHttpRequest();
+				if (!request) {
+					return;
+				}
+				request.onreadystatechange = function() {
+					if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+						var ip = document.getElementById('ip-contents');
+						ip.innerHTML = request.responseText;
+					}
+				};
+				request.open('GET', 'http://api.ipify.org');
+				request.send();
+			}
+		</script>
+		<button onclick="findIP()">Get Public IP Address</button> <span id="ip-contents" style="padding: 0 1em"></div>
 	</div>
 </body>
 </html>

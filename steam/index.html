@@ -17,6 +17,30 @@
 		border: solid 3px #a3a3a3;
 		color: #e3e3e3;
 	}
+	table {
+		border: solid 3px #a3a3a3;
+		border-collapse: collapse;
+		margin-top: 5px;
+	}
+	tr, td {
+		border: solid 1px #777;
+	}
+	#buy-binds td {
+		width: 100px;
+		text-align: center;
+		color: #bbb;
+		font-size: 14pt;
+	}
+	#buy-binds tr {
+		height: 100px;
+	}
+	#buy-binds .key {
+		display: block;
+		font-weight: bold;
+		color: #e3e3e3;
+		font-size: 20pt;
+		padding-bottom: 10px;
+	}
 	#search_form_homepage {
 		overflow:hidden;
 		margin:0 auto;
@@ -47,6 +71,9 @@
 	li {
 		padding: 0.2em 0;
 	}
+	.hidden {
+		display: none;
+	}
 </style>
 </head>
 <body>
@@ -65,9 +92,40 @@
 				</ul>
 			</li>
 			<li><a href="https://reddit.com/r/globaloffensive">/r/globaloffensive</a></li>
+			<li><a href="https://csgostats.gg/player/76561198029345998">Stats</a></li>
 		</ul>
+		<button onclick="document.getElementById('buy-binds').classList.toggle('hidden')">Buy Binds</button><br/>
+		<table id="buy-binds" class="hidden">
+			<tr>
+				<td><span class="key">Num Lock</span></td>
+				<td><span class="key">/</span>UMP-45</td>
+				<td><span class="key">*</span>HUD Toggle</td>
+				<td><span class="key">-</span>Voice Toggle</td>
+			</tr>
+			<tr>
+				<td><span class="key">7</span>Smoke</td>
+				<td><span class="key">8</span>HE</td>
+				<td><span class="key">9</span>Flash</td>
+				<td rowspan="2"><span class="key">+</span>Molotov</td>
+			</tr>
+			<tr>
+				<td><span class="key">4</span>Galil/Famas</td>
+				<td><span class="key">5</span>AK/M4</td>
+				<td><span class="key">6</span>AWP</td>
+			</tr>
+			<tr>
+				<td><span class="key">1</span>P250</td>
+				<td><span class="key">2</span>Tec-9/CZ</td>
+				<td><span class="key">3</span>Deagle</td>
+				<td rowspan="2"><span class="key">Enter</span>Defuse</td>
+			</tr>
+			<tr>
+				<td colspan="2"><span class="key">0</span>Armor+Helmet</td>
+				<td><span class="key">.</span>Armor</td>
+			</tr>
+		</table>
 	</div>
-	<div class "game" id="utils">
+	<div class="game" id="utils">
 		<h2>Tools</h2>
 		<script type="text/javascript">
 			function findIP() {

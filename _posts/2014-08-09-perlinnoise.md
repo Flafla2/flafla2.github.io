@@ -393,9 +393,9 @@ public double OctavePerlin(double x, double y, double z, int octaves, double per
     double amplitude = 1;
     double maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
     for(int i=0;i<octaves;i++) {
-        total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
+        total += perlin(x * frequency, y * frequency, z * frequency) * (amplitude / frequency);
         
-        maxValue += amplitude;
+        maxValue += amplitude / frequency;
         
         amplitude *= persistence;
         frequency *= 2;
